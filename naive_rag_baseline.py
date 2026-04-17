@@ -286,33 +286,33 @@ def retrieve(stores: dict, query: str, top_k: int = 5) -> dict:
 
 MODELS_TO_TEST = [
     # — Hugging Face (needs HF_TOKEN) —
-    #{
-    #    "provider": "hf",
-    #    "model_id": "meta-llama/Llama-3.1-8B-Instruct",
-    #    "label":    "Llama-3.1-8B",
-    #},
-    #{
-    #    "provider": "hf",
-    #    "model_id": "Qwen/Qwen2.5-7B-Instruct",
-    #    "label":    "Qwen2.5-7B",
-    #},
+    {
+        "provider": "hf",
+        "model_id": "meta-llama/Llama-3.1-8B-Instruct",
+        "label":    "Llama-3.1-8B",
+    },
+    {
+        "provider": "hf",
+        "model_id": "Qwen/Qwen2.5-7B-Instruct",
+        "label":    "Qwen2.5-7B",
+    },
     {
         "provider":    "hf",
         "model_id":    "google/gemma-2-9b-it:featherless-ai",
         "label":       "Gemma-2-9B",
     },
     # — Google Gemini (needs GEMINI_API_KEY) —
-    #{
-    #    "provider": "gemini",
-    #    "model_id": "gemini-2.5-flash-lite",
-    #    "label":    "Gemini-2.5-Flash-Lite",
-    #},
+    {
+        "provider": "gemini",
+        "model_id": "gemini-2.5-flash-lite",
+        "label":    "Gemini-2.5-Flash-Lite",
+    },
     # — OpenAI (needs OPENAI_API_KEY) —
-    #{
-    #    "provider": "openai",
-    #    "model_id": "gpt-4o-mini",
-    #    "label":    "GPT-4o-mini",
-    #},
+    {
+        "provider": "openai",
+        "model_id": "gpt-4o-mini",
+        "label":    "GPT-4o-mini",
+    },
 ]
 
 
