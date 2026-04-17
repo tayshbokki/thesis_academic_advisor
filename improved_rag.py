@@ -19,6 +19,7 @@ Embedding model: intfloat/e5-small-v2
 Reranker: cross-encoder/ms-marco-MiniLM-L-6-v2
 
 Usage:
+    # Recommended thesis workflow:
     python improved_rag.py --split train --phase 1   # sweep retrieval configs
     python improved_rag.py --split test  --phase 1   # held-out retrieval numbers
     python improved_rag.py --split train --phase 2   # sweep model x params
