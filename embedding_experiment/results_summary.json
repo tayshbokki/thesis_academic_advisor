@@ -1,0 +1,777 @@
+[
+  {
+    "model_name": "all-MiniLM-L6-v2",
+    "model_id": "sentence-transformers/all-MiniLM-L6-v2",
+    "description": "Fast lightweight baseline — 22M params",
+    "n_queries": 535,
+    "embed_time_total_s": 20.504,
+    "embed_time_per_doc_ms": 13.1,
+    "mean_mrr": 0.6581,
+    "mean_ndcg_at_10": 0.7012,
+    "mean_cosine_gap": 0.1123,
+    "mean_recall_at_k": {
+      "1": 0.3044,
+      "3": 0.3657,
+      "5": 0.4022,
+      "10": 0.4673
+    },
+    "category_breakdown": {
+      "ambiguous_counterpart": {
+        "n": 26,
+        "mean_mrr": 0.736,
+        "mean_ndcg_at_10": 0.8771,
+        "mean_recall_at_1": 0.3077,
+        "mean_recall_at_5": 0.4808
+      },
+      "attendance_policy": {
+        "n": 20,
+        "mean_mrr": 0.9083,
+        "mean_ndcg_at_10": 0.965,
+        "mean_recall_at_1": 0.2833,
+        "mean_recall_at_5": 0.5667
+      },
+      "corequisite": {
+        "n": 75,
+        "mean_mrr": 0.4853,
+        "mean_ndcg_at_10": 0.5421,
+        "mean_recall_at_1": 0.2067,
+        "mean_recall_at_5": 0.2533
+      },
+      "course_credit": {
+        "n": 5,
+        "mean_mrr": 0.5269,
+        "mean_ndcg_at_10": 0.4888,
+        "mean_recall_at_1": 0.1333,
+        "mean_recall_at_5": 0.2667
+      },
+      "curriculum_summary": {
+        "n": 2,
+        "mean_mrr": 0.0,
+        "mean_ndcg_at_10": 0.0,
+        "mean_recall_at_1": 0.0,
+        "mean_recall_at_5": 0.0
+      },
+      "edge_case": {
+        "n": 5,
+        "mean_mrr": 0.9,
+        "mean_ndcg_at_10": 0.929,
+        "mean_recall_at_1": 0.2667,
+        "mean_recall_at_5": 0.6667
+      },
+      "eligibility_check": {
+        "n": 21,
+        "mean_mrr": 0.8335,
+        "mean_ndcg_at_10": 0.9336,
+        "mean_recall_at_1": 0.3492,
+        "mean_recall_at_5": 0.4444
+      },
+      "enrollment_policy": {
+        "n": 16,
+        "mean_mrr": 0.9062,
+        "mean_ndcg_at_10": 0.9811,
+        "mean_recall_at_1": 0.2708,
+        "mean_recall_at_5": 0.6458
+      },
+      "grading_policy": {
+        "n": 23,
+        "mean_mrr": 0.8975,
+        "mean_ndcg_at_10": 0.9222,
+        "mean_recall_at_1": 0.2754,
+        "mean_recall_at_5": 0.5507
+      },
+      "ojt_policy": {
+        "n": 44,
+        "mean_mrr": 0.9061,
+        "mean_ndcg_at_10": 0.9986,
+        "mean_recall_at_1": 0.8409,
+        "mean_recall_at_5": 1.0
+      },
+      "planning_guidance": {
+        "n": 1,
+        "mean_mrr": 0.0,
+        "mean_ndcg_at_10": 0.0,
+        "mean_recall_at_1": 0.0,
+        "mean_recall_at_5": 0.0
+      },
+      "prerequisite": {
+        "n": 235,
+        "mean_mrr": 0.6437,
+        "mean_ndcg_at_10": 0.6708,
+        "mean_recall_at_1": 0.2695,
+        "mean_recall_at_5": 0.3199
+      },
+      "prerequisite_lookup": {
+        "n": 40,
+        "mean_mrr": 0.505,
+        "mean_ndcg_at_10": 0.5021,
+        "mean_recall_at_1": 0.225,
+        "mean_recall_at_5": 0.2625
+      },
+      "program_info": {
+        "n": 2,
+        "mean_mrr": 0.0,
+        "mean_ndcg_at_10": 0.0,
+        "mean_recall_at_1": 0.0,
+        "mean_recall_at_5": 0.0
+      },
+      "student_query_variant": {
+        "n": 3,
+        "mean_mrr": 1.0,
+        "mean_ndcg_at_10": 1.0,
+        "mean_recall_at_1": 1.0,
+        "mean_recall_at_5": 1.0
+      },
+      "term_plan": {
+        "n": 12,
+        "mean_mrr": 0.0167,
+        "mean_ndcg_at_10": 0.0,
+        "mean_recall_at_1": 0.0,
+        "mean_recall_at_5": 0.0
+      },
+      "withdrawal_policy": {
+        "n": 5,
+        "mean_mrr": 0.82,
+        "mean_ndcg_at_10": 0.8271,
+        "mean_recall_at_1": 0.2667,
+        "mean_recall_at_5": 0.5333
+      }
+    },
+    "program_breakdown": {
+      "CPE": {
+        "n": 218,
+        "mean_mrr": 0.586,
+        "mean_recall_at_5": 0.2989
+      },
+      "ECE": {
+        "n": 165,
+        "mean_mrr": 0.5928,
+        "mean_recall_at_5": 0.296
+      },
+      "GENERAL": {
+        "n": 152,
+        "mean_mrr": 0.8326,
+        "mean_recall_at_5": 0.6656
+      }
+    }
+  },
+  {
+    "model_name": "all-mpnet-base-v2",
+    "model_id": "sentence-transformers/all-mpnet-base-v2",
+    "description": "Strong general-purpose model — 110M params",
+    "n_queries": 535,
+    "embed_time_total_s": 183.72,
+    "embed_time_per_doc_ms": 117.39,
+    "mean_mrr": 0.3704,
+    "mean_ndcg_at_10": 0.3999,
+    "mean_cosine_gap": 0.0607,
+    "mean_recall_at_k": {
+      "1": 0.1791,
+      "3": 0.2343,
+      "5": 0.2779,
+      "10": 0.3112
+    },
+    "category_breakdown": {
+      "ambiguous_counterpart": {
+        "n": 26,
+        "mean_mrr": 0.3421,
+        "mean_ndcg_at_10": 0.3638,
+        "mean_recall_at_1": 0.1346,
+        "mean_recall_at_5": 0.2115
+      },
+      "attendance_policy": {
+        "n": 20,
+        "mean_mrr": 0.7617,
+        "mean_ndcg_at_10": 0.9341,
+        "mean_recall_at_1": 0.2167,
+        "mean_recall_at_5": 0.5833
+      },
+      "corequisite": {
+        "n": 75,
+        "mean_mrr": 0.134,
+        "mean_ndcg_at_10": 0.1534,
+        "mean_recall_at_1": 0.0533,
+        "mean_recall_at_5": 0.0867
+      },
+      "course_credit": {
+        "n": 5,
+        "mean_mrr": 0.69,
+        "mean_ndcg_at_10": 0.856,
+        "mean_recall_at_1": 0.2,
+        "mean_recall_at_5": 0.6
+      },
+      "curriculum_summary": {
+        "n": 2,
+        "mean_mrr": 0.0,
+        "mean_ndcg_at_10": 0.0,
+        "mean_recall_at_1": 0.0,
+        "mean_recall_at_5": 0.0
+      },
+      "edge_case": {
+        "n": 5,
+        "mean_mrr": 0.8667,
+        "mean_ndcg_at_10": 0.9504,
+        "mean_recall_at_1": 0.2667,
+        "mean_recall_at_5": 0.6
+      },
+      "eligibility_check": {
+        "n": 21,
+        "mean_mrr": 0.387,
+        "mean_ndcg_at_10": 0.4799,
+        "mean_recall_at_1": 0.127,
+        "mean_recall_at_5": 0.254
+      },
+      "enrollment_policy": {
+        "n": 16,
+        "mean_mrr": 0.8375,
+        "mean_ndcg_at_10": 0.8956,
+        "mean_recall_at_1": 0.25,
+        "mean_recall_at_5": 0.5625
+      },
+      "grading_policy": {
+        "n": 23,
+        "mean_mrr": 0.9348,
+        "mean_ndcg_at_10": 0.9941,
+        "mean_recall_at_1": 0.2899,
+        "mean_recall_at_5": 0.7101
+      },
+      "ojt_policy": {
+        "n": 44,
+        "mean_mrr": 0.9122,
+        "mean_ndcg_at_10": 0.9595,
+        "mean_recall_at_1": 0.8636,
+        "mean_recall_at_5": 0.9773
+      },
+      "planning_guidance": {
+        "n": 1,
+        "mean_mrr": 0.0,
+        "mean_ndcg_at_10": 0.0,
+        "mean_recall_at_1": 0.0,
+        "mean_recall_at_5": 0.0
+      },
+      "prerequisite": {
+        "n": 235,
+        "mean_mrr": 0.2444,
+        "mean_ndcg_at_10": 0.2565,
+        "mean_recall_at_1": 0.1007,
+        "mean_recall_at_5": 0.1468
+      },
+      "prerequisite_lookup": {
+        "n": 40,
+        "mean_mrr": 0.2233,
+        "mean_ndcg_at_10": 0.2131,
+        "mean_recall_at_1": 0.1,
+        "mean_recall_at_5": 0.1375
+      },
+      "program_info": {
+        "n": 2,
+        "mean_mrr": 0.0,
+        "mean_ndcg_at_10": 0.0,
+        "mean_recall_at_1": 0.0,
+        "mean_recall_at_5": 0.0
+      },
+      "student_query_variant": {
+        "n": 3,
+        "mean_mrr": 0.5303,
+        "mean_ndcg_at_10": 0.6667,
+        "mean_recall_at_1": 0.3333,
+        "mean_recall_at_5": 0.6667
+      },
+      "term_plan": {
+        "n": 12,
+        "mean_mrr": 0.0051,
+        "mean_ndcg_at_10": 0.0,
+        "mean_recall_at_1": 0.0,
+        "mean_recall_at_5": 0.0
+      },
+      "withdrawal_policy": {
+        "n": 5,
+        "mean_mrr": 1.0,
+        "mean_ndcg_at_10": 1.0,
+        "mean_recall_at_1": 0.3333,
+        "mean_recall_at_5": 0.6667
+      }
+    },
+    "program_breakdown": {
+      "CPE": {
+        "n": 218,
+        "mean_mrr": 0.2372,
+        "mean_recall_at_5": 0.1453
+      },
+      "ECE": {
+        "n": 165,
+        "mean_mrr": 0.1994,
+        "mean_recall_at_5": 0.1222
+      },
+      "GENERAL": {
+        "n": 152,
+        "mean_mrr": 0.747,
+        "mean_recall_at_5": 0.6371
+      }
+    }
+  },
+  {
+    "model_name": "multi-qa-mpnet-base-dot-v1",
+    "model_id": "sentence-transformers/multi-qa-mpnet-base-dot-v1",
+    "description": "Trained for Q&A retrieval — 110M params",
+    "n_queries": 535,
+    "embed_time_total_s": 185.553,
+    "embed_time_per_doc_ms": 118.56,
+    "mean_mrr": 0.6825,
+    "mean_ndcg_at_10": 0.7296,
+    "mean_cosine_gap": 0.0955,
+    "mean_recall_at_k": {
+      "1": 0.315,
+      "3": 0.3978,
+      "5": 0.428,
+      "10": 0.4997
+    },
+    "category_breakdown": {
+      "ambiguous_counterpart": {
+        "n": 26,
+        "mean_mrr": 0.761,
+        "mean_ndcg_at_10": 0.9182,
+        "mean_recall_at_1": 0.3077,
+        "mean_recall_at_5": 0.5385
+      },
+      "attendance_policy": {
+        "n": 20,
+        "mean_mrr": 0.8875,
+        "mean_ndcg_at_10": 0.9528,
+        "mean_recall_at_1": 0.2667,
+        "mean_recall_at_5": 0.6667
+      },
+      "corequisite": {
+        "n": 75,
+        "mean_mrr": 0.2215,
+        "mean_ndcg_at_10": 0.2479,
+        "mean_recall_at_1": 0.08,
+        "mean_recall_at_5": 0.1133
+      },
+      "course_credit": {
+        "n": 5,
+        "mean_mrr": 0.85,
+        "mean_ndcg_at_10": 0.7169,
+        "mean_recall_at_1": 0.2667,
+        "mean_recall_at_5": 0.3333
+      },
+      "curriculum_summary": {
+        "n": 2,
+        "mean_mrr": 0.0,
+        "mean_ndcg_at_10": 0.0,
+        "mean_recall_at_1": 0.0,
+        "mean_recall_at_5": 0.0
+      },
+      "edge_case": {
+        "n": 5,
+        "mean_mrr": 1.0,
+        "mean_ndcg_at_10": 1.0,
+        "mean_recall_at_1": 0.3333,
+        "mean_recall_at_5": 0.7333
+      },
+      "eligibility_check": {
+        "n": 21,
+        "mean_mrr": 0.8466,
+        "mean_ndcg_at_10": 0.8875,
+        "mean_recall_at_1": 0.3651,
+        "mean_recall_at_5": 0.4286
+      },
+      "enrollment_policy": {
+        "n": 16,
+        "mean_mrr": 0.8932,
+        "mean_ndcg_at_10": 0.9158,
+        "mean_recall_at_1": 0.2917,
+        "mean_recall_at_5": 0.5833
+      },
+      "grading_policy": {
+        "n": 23,
+        "mean_mrr": 0.913,
+        "mean_ndcg_at_10": 0.942,
+        "mean_recall_at_1": 0.2754,
+        "mean_recall_at_5": 0.6377
+      },
+      "ojt_policy": {
+        "n": 44,
+        "mean_mrr": 0.9168,
+        "mean_ndcg_at_10": 0.954,
+        "mean_recall_at_1": 0.8864,
+        "mean_recall_at_5": 0.9545
+      },
+      "planning_guidance": {
+        "n": 1,
+        "mean_mrr": 0.0,
+        "mean_ndcg_at_10": 0.0,
+        "mean_recall_at_1": 0.0,
+        "mean_recall_at_5": 0.0
+      },
+      "prerequisite": {
+        "n": 235,
+        "mean_mrr": 0.7439,
+        "mean_ndcg_at_10": 0.7971,
+        "mean_recall_at_1": 0.3163,
+        "mean_recall_at_5": 0.3943
+      },
+      "prerequisite_lookup": {
+        "n": 40,
+        "mean_mrr": 0.6681,
+        "mean_ndcg_at_10": 0.7216,
+        "mean_recall_at_1": 0.2875,
+        "mean_recall_at_5": 0.3708
+      },
+      "program_info": {
+        "n": 2,
+        "mean_mrr": 0.0,
+        "mean_ndcg_at_10": 0.0,
+        "mean_recall_at_1": 0.0,
+        "mean_recall_at_5": 0.0
+      },
+      "student_query_variant": {
+        "n": 3,
+        "mean_mrr": 0.5333,
+        "mean_ndcg_at_10": 0.763,
+        "mean_recall_at_1": 0.3333,
+        "mean_recall_at_5": 0.6667
+      },
+      "term_plan": {
+        "n": 12,
+        "mean_mrr": 0.0183,
+        "mean_ndcg_at_10": 0.0,
+        "mean_recall_at_1": 0.0,
+        "mean_recall_at_5": 0.0
+      },
+      "withdrawal_policy": {
+        "n": 5,
+        "mean_mrr": 1.0,
+        "mean_ndcg_at_10": 0.9614,
+        "mean_recall_at_1": 0.3333,
+        "mean_recall_at_5": 0.6667
+      }
+    },
+    "program_breakdown": {
+      "CPE": {
+        "n": 218,
+        "mean_mrr": 0.6178,
+        "mean_recall_at_5": 0.3333
+      },
+      "ECE": {
+        "n": 165,
+        "mean_mrr": 0.6149,
+        "mean_recall_at_5": 0.3172
+      },
+      "GENERAL": {
+        "n": 152,
+        "mean_mrr": 0.8488,
+        "mean_recall_at_5": 0.6842
+      }
+    }
+  },
+  {
+    "model_name": "e5-small-v2",
+    "model_id": "intfloat/e5-small-v2",
+    "description": "Efficient retrieval-focused model — 33M params",
+    "n_queries": 535,
+    "embed_time_total_s": 42.158,
+    "embed_time_per_doc_ms": 26.94,
+    "mean_mrr": 0.7148,
+    "mean_ndcg_at_10": 0.7931,
+    "mean_cosine_gap": 0.0269,
+    "mean_recall_at_k": {
+      "1": 0.3312,
+      "3": 0.4109,
+      "5": 0.4551,
+      "10": 0.5321
+    },
+    "category_breakdown": {
+      "ambiguous_counterpart": {
+        "n": 26,
+        "mean_mrr": 0.8603,
+        "mean_ndcg_at_10": 0.9469,
+        "mean_recall_at_1": 0.3846,
+        "mean_recall_at_5": 0.5577
+      },
+      "attendance_policy": {
+        "n": 20,
+        "mean_mrr": 0.4496,
+        "mean_ndcg_at_10": 0.6695,
+        "mean_recall_at_1": 0.05,
+        "mean_recall_at_5": 0.3833
+      },
+      "corequisite": {
+        "n": 75,
+        "mean_mrr": 0.3778,
+        "mean_ndcg_at_10": 0.5421,
+        "mean_recall_at_1": 0.1267,
+        "mean_recall_at_5": 0.2733
+      },
+      "course_credit": {
+        "n": 5,
+        "mean_mrr": 0.4817,
+        "mean_ndcg_at_10": 0.4865,
+        "mean_recall_at_1": 0.1333,
+        "mean_recall_at_5": 0.2667
+      },
+      "curriculum_summary": {
+        "n": 2,
+        "mean_mrr": 0.0,
+        "mean_ndcg_at_10": 0.0,
+        "mean_recall_at_1": 0.0,
+        "mean_recall_at_5": 0.0
+      },
+      "edge_case": {
+        "n": 5,
+        "mean_mrr": 1.0,
+        "mean_ndcg_at_10": 1.0,
+        "mean_recall_at_1": 0.3333,
+        "mean_recall_at_5": 0.7333
+      },
+      "eligibility_check": {
+        "n": 21,
+        "mean_mrr": 0.8728,
+        "mean_ndcg_at_10": 0.91,
+        "mean_recall_at_1": 0.3889,
+        "mean_recall_at_5": 0.4921
+      },
+      "enrollment_policy": {
+        "n": 16,
+        "mean_mrr": 0.8177,
+        "mean_ndcg_at_10": 0.9554,
+        "mean_recall_at_1": 0.2292,
+        "mean_recall_at_5": 0.6875
+      },
+      "grading_policy": {
+        "n": 23,
+        "mean_mrr": 0.8986,
+        "mean_ndcg_at_10": 0.8779,
+        "mean_recall_at_1": 0.2754,
+        "mean_recall_at_5": 0.5507
+      },
+      "ojt_policy": {
+        "n": 44,
+        "mean_mrr": 0.9596,
+        "mean_ndcg_at_10": 0.9814,
+        "mean_recall_at_1": 0.9545,
+        "mean_recall_at_5": 0.9545
+      },
+      "planning_guidance": {
+        "n": 1,
+        "mean_mrr": 0.0,
+        "mean_ndcg_at_10": 0.0,
+        "mean_recall_at_1": 0.0,
+        "mean_recall_at_5": 0.0
+      },
+      "prerequisite": {
+        "n": 235,
+        "mean_mrr": 0.7863,
+        "mean_ndcg_at_10": 0.8474,
+        "mean_recall_at_1": 0.334,
+        "mean_recall_at_5": 0.4156
+      },
+      "prerequisite_lookup": {
+        "n": 40,
+        "mean_mrr": 0.7304,
+        "mean_ndcg_at_10": 0.8218,
+        "mean_recall_at_1": 0.3083,
+        "mean_recall_at_5": 0.4208
+      },
+      "program_info": {
+        "n": 2,
+        "mean_mrr": 0.0,
+        "mean_ndcg_at_10": 0.0,
+        "mean_recall_at_1": 0.0,
+        "mean_recall_at_5": 0.0
+      },
+      "student_query_variant": {
+        "n": 3,
+        "mean_mrr": 0.7,
+        "mean_ndcg_at_10": 0.763,
+        "mean_recall_at_1": 0.6667,
+        "mean_recall_at_5": 0.6667
+      },
+      "term_plan": {
+        "n": 12,
+        "mean_mrr": 0.0654,
+        "mean_ndcg_at_10": 0.167,
+        "mean_recall_at_1": 0.0,
+        "mean_recall_at_5": 0.0833
+      },
+      "withdrawal_policy": {
+        "n": 5,
+        "mean_mrr": 0.8286,
+        "mean_ndcg_at_10": 0.8313,
+        "mean_recall_at_1": 0.2667,
+        "mean_recall_at_5": 0.4667
+      }
+    },
+    "program_breakdown": {
+      "CPE": {
+        "n": 218,
+        "mean_mrr": 0.7064,
+        "mean_recall_at_5": 0.3823
+      },
+      "ECE": {
+        "n": 165,
+        "mean_mrr": 0.6511,
+        "mean_recall_at_5": 0.3818
+      },
+      "GENERAL": {
+        "n": 152,
+        "mean_mrr": 0.7959,
+        "mean_recall_at_5": 0.6393
+      }
+    }
+  },
+  {
+    "model_name": "e5-base-v2",
+    "model_id": "intfloat/e5-base-v2",
+    "description": "Stronger retrieval-focused model — 109M params",
+    "n_queries": 535,
+    "embed_time_total_s": 126.195,
+    "embed_time_per_doc_ms": 80.64,
+    "mean_mrr": 0.7484,
+    "mean_ndcg_at_10": 0.7926,
+    "mean_cosine_gap": 0.0325,
+    "mean_recall_at_k": {
+      "1": 0.3533,
+      "3": 0.4109,
+      "5": 0.4458,
+      "10": 0.5274
+    },
+    "category_breakdown": {
+      "ambiguous_counterpart": {
+        "n": 26,
+        "mean_mrr": 0.8054,
+        "mean_ndcg_at_10": 0.8919,
+        "mean_recall_at_1": 0.3654,
+        "mean_recall_at_5": 0.4615
+      },
+      "attendance_policy": {
+        "n": 20,
+        "mean_mrr": 0.579,
+        "mean_ndcg_at_10": 0.656,
+        "mean_recall_at_1": 0.15,
+        "mean_recall_at_5": 0.4167
+      },
+      "corequisite": {
+        "n": 75,
+        "mean_mrr": 0.3703,
+        "mean_ndcg_at_10": 0.4628,
+        "mean_recall_at_1": 0.1333,
+        "mean_recall_at_5": 0.22
+      },
+      "course_credit": {
+        "n": 5,
+        "mean_mrr": 0.6583,
+        "mean_ndcg_at_10": 0.6148,
+        "mean_recall_at_1": 0.2,
+        "mean_recall_at_5": 0.2667
+      },
+      "curriculum_summary": {
+        "n": 2,
+        "mean_mrr": 0.0,
+        "mean_ndcg_at_10": 0.0,
+        "mean_recall_at_1": 0.0,
+        "mean_recall_at_5": 0.0
+      },
+      "edge_case": {
+        "n": 5,
+        "mean_mrr": 0.9,
+        "mean_ndcg_at_10": 0.9868,
+        "mean_recall_at_1": 0.2667,
+        "mean_recall_at_5": 0.6
+      },
+      "eligibility_check": {
+        "n": 21,
+        "mean_mrr": 0.844,
+        "mean_ndcg_at_10": 0.925,
+        "mean_recall_at_1": 0.3492,
+        "mean_recall_at_5": 0.5
+      },
+      "enrollment_policy": {
+        "n": 16,
+        "mean_mrr": 0.6549,
+        "mean_ndcg_at_10": 0.7505,
+        "mean_recall_at_1": 0.1667,
+        "mean_recall_at_5": 0.4375
+      },
+      "grading_policy": {
+        "n": 23,
+        "mean_mrr": 0.9174,
+        "mean_ndcg_at_10": 0.8593,
+        "mean_recall_at_1": 0.2899,
+        "mean_recall_at_5": 0.5072
+      },
+      "ojt_policy": {
+        "n": 44,
+        "mean_mrr": 0.9886,
+        "mean_ndcg_at_10": 0.9982,
+        "mean_recall_at_1": 0.9773,
+        "mean_recall_at_5": 1.0
+      },
+      "planning_guidance": {
+        "n": 1,
+        "mean_mrr": 0.0,
+        "mean_ndcg_at_10": 0.0,
+        "mean_recall_at_1": 0.0,
+        "mean_recall_at_5": 0.0
+      },
+      "prerequisite": {
+        "n": 235,
+        "mean_mrr": 0.8555,
+        "mean_ndcg_at_10": 0.8874,
+        "mean_recall_at_1": 0.3723,
+        "mean_recall_at_5": 0.4298
+      },
+      "prerequisite_lookup": {
+        "n": 40,
+        "mean_mrr": 0.7304,
+        "mean_ndcg_at_10": 0.8011,
+        "mean_recall_at_1": 0.3208,
+        "mean_recall_at_5": 0.4125
+      },
+      "program_info": {
+        "n": 2,
+        "mean_mrr": 0.0,
+        "mean_ndcg_at_10": 0.0,
+        "mean_recall_at_1": 0.0,
+        "mean_recall_at_5": 0.0
+      },
+      "student_query_variant": {
+        "n": 3,
+        "mean_mrr": 0.697,
+        "mean_ndcg_at_10": 0.6667,
+        "mean_recall_at_1": 0.6667,
+        "mean_recall_at_5": 0.6667
+      },
+      "term_plan": {
+        "n": 12,
+        "mean_mrr": 0.1804,
+        "mean_ndcg_at_10": 0.2387,
+        "mean_recall_at_1": 0.0417,
+        "mean_recall_at_5": 0.1667
+      },
+      "withdrawal_policy": {
+        "n": 5,
+        "mean_mrr": 1.0,
+        "mean_ndcg_at_10": 0.8939,
+        "mean_recall_at_1": 0.3333,
+        "mean_recall_at_5": 0.5333
+      }
+    },
+    "program_breakdown": {
+      "CPE": {
+        "n": 218,
+        "mean_mrr": 0.7078,
+        "mean_recall_at_5": 0.3555
+      },
+      "ECE": {
+        "n": 165,
+        "mean_mrr": 0.7492,
+        "mean_recall_at_5": 0.4182
+      },
+      "GENERAL": {
+        "n": 152,
+        "mean_mrr": 0.8058,
+        "mean_recall_at_5": 0.6053
+      }
+    }
+  }
+]

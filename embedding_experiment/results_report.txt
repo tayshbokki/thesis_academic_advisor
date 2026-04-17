@@ -1,0 +1,58 @@
+========================================================================
+DLSU CpE AI Advising — Embedding Model Comparison Report
+========================================================================
+Dataset: advising_dataset.xlsx | Queries: 535 | Models: 5
+
+------------------------------------------------------------------------
+Rank Model                               MRR  NDCG@10  R@10   Gap   ms/doc
+------------------------------------------------------------------------
+1    e5-small-v2                      0.7148   0.79310.53210.0269    26.9ms ← SELECTED
+2    e5-base-v2                       0.7484   0.79260.52740.0325    80.6ms
+3    all-MiniLM-L6-v2                 0.6581   0.70120.46730.1123    13.1ms
+4    multi-qa-mpnet-base-dot-v1       0.6825   0.72960.49970.0955   118.6ms
+5    all-mpnet-base-v2                0.3704   0.39990.31120.0607   117.4ms
+------------------------------------------------------------------------
+
+SO1 target verification (winning model):
+  MRR ≥ 0.80      : FAIL (0.7148)
+  NDCG@10 ≥ 0.80  : FAIL (0.7931)
+  Recall@10 ≥ 0.75: FAIL (0.5321)
+
+Per-category breakdown (e5-small-v2):
+  Category                       N    MRR  NDCG@10   R@1   R@5
+  ----------------------------------------------------------
+  ambiguous_counterpart         26 0.8603   0.94690.38460.5577
+  attendance_policy             20 0.4496   0.66950.05000.3833
+  corequisite                   75 0.3778   0.54210.12670.2733
+  course_credit                  5 0.4817   0.48650.13330.2667
+  curriculum_summary             2 0.0000   0.00000.00000.0000
+  edge_case                      5 1.0000   1.00000.33330.7333
+  eligibility_check             21 0.8728   0.91000.38890.4921
+  enrollment_policy             16 0.8177   0.95540.22920.6875
+  grading_policy                23 0.8986   0.87790.27540.5507
+  ojt_policy                    44 0.9596   0.98140.95450.9545
+  planning_guidance              1 0.0000   0.00000.00000.0000
+  prerequisite                 235 0.7863   0.84740.33400.4156
+  prerequisite_lookup           40 0.7304   0.82180.30830.4208
+  program_info                   2 0.0000   0.00000.00000.0000
+  student_query_variant          3 0.7000   0.76300.66670.6667
+  term_plan                     12 0.0654   0.16700.00000.0833
+  withdrawal_policy              5 0.8286   0.83130.26670.4667
+
+Per-program breakdown (e5-small-v2):
+  Program        N    MRR   R@5
+  ------------------------------
+  CPE          218 0.70640.3823
+  ECE          165 0.65110.3818
+  GENERAL      152 0.79590.6393
+
+========================================================================
+RECOMMENDATION
+========================================================================
+Selected model : e5-small-v2
+Model ID       : intfloat/e5-small-v2
+Description    : Efficient retrieval-focused model — 33M params
+
+Justification (for thesis methodology section):
+  e5-small-v2 achieved the highest composite score on a stratified sample of 535 queries from the DLSU CpE advising dataset (593 Q&A pairs, 21 categories), covering prerequisite checking, co-requisite rules, OJT policy, enrollment policies, and eligibility checks across CPE, ECE, and GENERAL programs. It achieved MRR=0.7148, NDCG@10=0.7931, and Recall@10=0.5321. At 26.9ms per document, it satisfies the latency requirements of SO2 (<500ms) and SO7 (<2s).
+========================================================================

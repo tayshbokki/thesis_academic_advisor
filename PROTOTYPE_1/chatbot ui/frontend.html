@@ -1,0 +1,379 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>DLSU CpE Academic Advising Chatbot</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        body {
+            display: flex;
+            height: 100vh;
+            background: #f4f4f4;
+        }
+
+        .sidebar {
+            width: 260px;
+            background: #2e7d32;
+            color: white;
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+        }
+
+        .sidebar-title {
+            font-size: 1.2rem;
+            font-weight: bold;
+            margin-bottom: 30px;
+            text-align: center;
+        }
+
+        .newchat {
+            background: rgba(255, 255, 255, 0.2);
+            border: 1px solid white;
+            padding: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            cursor: pointer;
+            border-radius: 5px;
+            transition: 0.3s;
+        }
+
+        .newchat:hover {
+            background: rgba(255, 255, 255, 0.3);
+        }
+
+        .main {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .topbar {
+            height: 60px;
+            background: #ffffff;
+            display: flex;
+            align-items: center;
+            padding: 0 30px;
+            font-weight: bold;
+            border-bottom: 1px solid #ddd;
+            gap: 10px;
+        }
+
+        .model-badge {
+            background: #e8f5e9;
+            color: #2e7d32;
+            font-size: 12px;
+            font-weight: 600;
+            padding: 3px 10px;
+            border-radius: 20px;
+            border: 1px solid #a5d6a7;
+        }
+
+        .chat-area {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 40px 20px;
+            overflow: hidden;
+        }
+
+        .chat-wrapper {
+            width: 100%;
+            max-width: 700px;
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .greeting {
+            font-size: 28px;
+            margin-bottom: 20px;
+            text-align: center;
+            color: #333;
+        }
+
+        .messages {
+            flex: 1;
+            overflow-y: auto;
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+            padding: 10px;
+            margin-bottom: 20px;
+        }
+
+        .message {
+            padding: 12px 18px;
+            border-radius: 15px;
+            max-width: 80%;
+            line-height: 1.5;
+            font-size: 15px;
+        }
+
+        .user {
+            background: #2e7d32;
+            color: white;
+            align-self: flex-end;
+            border-bottom-right-radius: 2px;
+        }
+
+        .bot {
+            background: #e0e0e0;
+            color: #333;
+            align-self: flex-start;
+            border-bottom-left-radius: 2px;
+        }
+
+        .bot.error {
+            background: #ffebee;
+            color: #c62828;
+        }
+
+        /* Typing indicator */
+        .typing {
+            background: #e0e0e0;
+            align-self: flex-start;
+            border-bottom-left-radius: 2px;
+            padding: 14px 20px;
+            border-radius: 15px;
+            display: flex;
+            gap: 5px;
+            align-items: center;
+        }
+
+        .typing span {
+            width: 8px;
+            height: 8px;
+            background: #888;
+            border-radius: 50%;
+            animation: bounce 1.2s infinite;
+        }
+
+        .typing span:nth-child(2) { animation-delay: 0.2s; }
+        .typing span:nth-child(3) { animation-delay: 0.4s; }
+
+        @keyframes bounce {
+            0%, 60%, 100% { transform: translateY(0); }
+            30% { transform: translateY(-6px); }
+        }
+
+        .input-container {
+            background: white;
+            border: 1px solid #ccc;
+            border-radius: 30px;
+            display: flex;
+            padding: 5px 15px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+        }
+
+        .input-container input {
+            flex: 1;
+            border: none;
+            padding: 12px;
+            outline: none;
+            font-size: 16px;
+        }
+
+        .input-container input:disabled {
+            background: transparent;
+            color: #999;
+        }
+
+        .send-btn {
+            background: none;
+            border: none;
+            color: #2e7d32;
+            font-size: 22px;
+            cursor: pointer;
+            padding: 0 10px;
+            transition: opacity 0.2s;
+        }
+
+        .send-btn:disabled {
+            opacity: 0.3;
+            cursor: not-allowed;
+        }
+
+        .footer {
+            margin-top: 20px;
+            font-size: 11px;
+            text-align: center;
+            color: #777;
+        }
+
+        /* Suggested questions */
+        .suggestions {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            justify-content: center;
+            margin-bottom: 20px;
+        }
+
+        .suggestion-chip {
+            background: white;
+            border: 1px solid #a5d6a7;
+            color: #2e7d32;
+            padding: 6px 14px;
+            border-radius: 20px;
+            font-size: 13px;
+            cursor: pointer;
+            transition: 0.2s;
+        }
+
+        .suggestion-chip:hover {
+            background: #e8f5e9;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="sidebar">
+        <div>
+            <div class="sidebar-title">🎓 CpE Chatbot</div>
+            <div class="newchat" onclick="startNewChat()">✎ New Chat</div>
+        </div>
+        <div style="font-size: 10px; opacity: 0.8; text-align: center;">
+            AY 2022-2023 Checklist<br>Powered by Improved RAG
+        </div>
+    </div>
+
+    <div class="main">
+        <div class="topbar">
+            DLSU CpE Academic Adviser
+            <span class="model-badge">GPT-4o-mini · Improved RAG</span>
+        </div>
+
+        <div class="chat-area">
+            <div class="chat-wrapper">
+                <div class="greeting" id="greeting">Greetings! How can I help you today?</div>
+
+                <div class="suggestions" id="suggestions">
+                    <div class="suggestion-chip" onclick="askSuggestion(this)">Prerequisites for THSCP4A?</div>
+                    <div class="suggestion-chip" onclick="askSuggestion(this)">What courses are in Term 7?</div>
+                    <div class="suggestion-chip" onclick="askSuggestion(this)">What is the thesis sequence?</div>
+                    <div class="suggestion-chip" onclick="askSuggestion(this)">Can I take FUNDLEC without FUNDCKT?</div>
+                </div>
+
+                <div class="messages" id="messages"></div>
+
+                <div class="input-container">
+                    <input type="text" id="userInput"
+                           placeholder="Ask about prerequisites, curriculum, or policies...">
+                    <button class="send-btn" id="sendBtn" onclick="sendMessage()">➤</button>
+                </div>
+
+                <div class="footer">
+                    By messaging DLSU CpE Chatbot, you agree to our <u>Terms</u> and <u>Privacy Policy</u>.
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const messagesEl = document.getElementById("messages");
+        const userInputEl = document.getElementById("userInput");
+        const sendBtnEl   = document.getElementById("sendBtn");
+        const greetingEl  = document.getElementById("greeting");
+        const suggestionsEl = document.getElementById("suggestions");
+        let isWaiting = false;
+
+        function hideGreeting() {
+            greetingEl.style.display = "none";
+            suggestionsEl.style.display = "none";
+        }
+
+        function addMessage(text, type) {
+            const div = document.createElement("div");
+            div.classList.add("message", type);
+            div.innerText = text;
+            messagesEl.appendChild(div);
+            messagesEl.scrollTop = messagesEl.scrollHeight;
+            return div;
+        }
+
+        function showTyping() {
+            const div = document.createElement("div");
+            div.classList.add("typing");
+            div.id = "typingIndicator";
+            div.innerHTML = "<span></span><span></span><span></span>";
+            messagesEl.appendChild(div);
+            messagesEl.scrollTop = messagesEl.scrollHeight;
+        }
+
+        function removeTyping() {
+            const el = document.getElementById("typingIndicator");
+            if (el) el.remove();
+        }
+
+        function setLoading(state) {
+            isWaiting = state;
+            userInputEl.disabled  = state;
+            sendBtnEl.disabled    = state;
+            userInputEl.placeholder = state
+                ? "Please wait..."
+                : "Ask about prerequisites, curriculum, or policies...";
+        }
+
+        async function sendMessage() {
+            const text = userInputEl.value.trim();
+            if (!text || isWaiting) return;
+
+            hideGreeting();
+            addMessage(text, "user");
+            userInputEl.value = "";
+            setLoading(true);
+            showTyping();
+
+            try {
+                const res = await fetch("/chat", {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({ message: text })
+                });
+                const data = await res.json();
+                removeTyping();
+                if (data.response) {
+                    addMessage(data.response, "bot");
+                } else {
+                    addMessage("Sorry, something went wrong. Please try again.", "bot error");
+                }
+            } catch (err) {
+                removeTyping();
+                addMessage("Could not reach the server. Make sure demo_app.py is running.", "bot error");
+            }
+
+            setLoading(false);
+            userInputEl.focus();
+        }
+
+        function askSuggestion(chip) {
+            userInputEl.value = chip.innerText.replace("?", "");
+            sendMessage();
+        }
+
+        userInputEl.addEventListener("keypress", (e) => {
+            if (e.key === "Enter") sendMessage();
+        });
+
+        function startNewChat() {
+            messagesEl.innerHTML = "";
+            greetingEl.style.display = "block";
+            suggestionsEl.style.display = "flex";
+            userInputEl.value = "";
+            userInputEl.focus();
+        }
+    </script>
+</body>
+</html>

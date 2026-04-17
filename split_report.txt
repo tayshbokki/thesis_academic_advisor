@@ -1,0 +1,29 @@
+DATASET SPLIT REPORT
+Seed: 42 | Test size: 20%
+Total: 1093 | Train: 874 | Test: 219
+
+Category                             Total  Train   Test
+---------------------------------------------------------
+ambiguous_counterpart                   26     21      5
+attendance_policy                       40     32      8
+checklist_rule                          11      9      2
+corequisite                            120     96     24
+course_completion                        5      4      1
+course_credit                            5      4      1
+curriculum_overview                     27     22      5
+curriculum_rule                          5      4      1
+curriculum_summary                       6      5      1
+discipline_policy                       47     37     10
+edge_case                                5      4      1
+eligibility_check                      172    137     35
+enrollment_policy                       25     20      5
+grading_policy                          62     49     13
+ojt_policy                              44     35      9
+planning_guidance                       15     12      3
+prerequisite                           340    272     68
+prerequisite_lookup                     56     45     11
+program_info                             2      2      0
+student_policy                           1      1      0
+student_query_variant                   10      8      2
+term_plan                               42     33      9
+withdrawal_policy                       27     22      5

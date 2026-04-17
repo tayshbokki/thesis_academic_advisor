@@ -1,0 +1,11 @@
+# Large/generated files
+chroma_store/
+parsed_data/
+__pycache__/
+*.pyc
+
+# Sensitive
+.env
+
+advising_dataset.xlsx
+PROTOTYPE_1/thesis-testing/
