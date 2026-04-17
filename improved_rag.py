@@ -756,7 +756,6 @@ PARAM_CONFIGS = [
 
 MODELS_TO_TEST = [
     {"provider": "hf",     "model_id": "meta-llama/Llama-3.1-8B-Instruct",            "label": "Llama-3.1-8B"},
-    {"provider": "hf",     "model_id": "deepseek-ai/DeepSeek-R1-Distill-Llama-8B",    "label": "DeepSeek-R1-8B"},
     {"provider": "hf",     "model_id": "Qwen/Qwen2.5-7B-Instruct",                    "label": "Qwen2.5-7B"},
     {"provider": "hf",     "model_id": "google/gemma-2-9b-it:featherless-ai",         "label": "Gemma-2-9B"},
     {"provider": "gemini", "model_id": "gemini-2.5-flash-lite",                        "label": "Gemini-2.5-Flash-Lite"},
