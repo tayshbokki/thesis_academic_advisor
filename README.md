@@ -2,7 +2,7 @@
 ### A Retrieval-Augmented Generation (RAG) System for Academic Advising
 **De La Salle University — Computer Engineering & Electronics Engineering Programs**
 
-> Thesis project evaluating three systems — No-RAG Baseline, Naive RAG, and Improved RAG — against a dataset of 593 academic advising Q&A pairs across 21 question categories.
+> Thesis project evaluating three systems — No-RAG Baseline, Naive RAG, and Improved RAG — against a dataset of 1,093 academic advising Q&A pairs across 23 question categories.
 
 ---
 
@@ -12,7 +12,9 @@
 thesis_academic_advisor/
 │
 ├── Data & Evaluation Dataset
-│   ├── advising_dataset.xlsx        # 593 Q&A pairs, 21 categories (ground truth)
+│   ├── dataset-query.xlsx           # Full dataset — 1,093 Q&A pairs, 23 categories
+│   ├── dataset_train.xlsx           # Training split — 874 Q&A pairs (80%)
+│   ├── dataset_test.xlsx            # Test split — 219 Q&A pairs (20%)
 │   ├── parse_report.json            # Parser output summary (17 checklists, 4 policy docs)
 │   └── results_summary.json         # Embedding experiment benchmark results
 │
@@ -61,23 +63,54 @@ pip install pdfplumber python-docx rank-bm25 mysql-connector-python pandas numpy
 
 ---
 
-### `advising_dataset.xlsx`
-The evaluation ground truth. Contains **593 Q&A pairs** spanning **21 categories** for CpE and ECE programs.
+### `dataset-query.xlsx` _(replaces `advising_dataset.xlsx`)_
+The full evaluation dataset — ground truth for all three evaluation systems. Contains **1,093 Q&A pairs** spanning **23 categories** for CpE, ECE, EES, and GENERAL programs. This is the combined pool from which the train/test split was derived.
 
 | Column | Description |
 |--------|-------------|
-| `id` | Unique question ID |
-| `program` | `CPE`, `ECE`, `EES`, or `GENERAL` |
-| `curriculum_id` | Batch ID (e.g., 118–125) |
-| `category` | Question type (prerequisite, OJT, grading, retention, etc.) |
-| `term_no` | Term the question applies to |
+| `qa_id` | Unique question ID (currently unpopulated — all `None`) |
 | `question` | Student question |
 | `answer` | Ground-truth adviser answer |
+| `category` | Question type (prerequisite, eligibility_check, ojt_policy, etc.) |
+| `program` | `CPE`, `ECE`, `EES`, or `GENERAL` |
+| `term_no` | Term the question applies to |
+| `difficulty` | `basic` or `complex` |
 | `keywords` | Relevant keywords for relevance judgment |
-| `source_file` | Source document the answer comes from |
-| `source_section` | Section within that document |
+| `source_section` | Section within the source document |
+| `source_doc_title` | Source document the answer comes from |
+| `created_by` | Author of the Q&A entry |
+| `verified` | Whether the entry has been verified |
+| `created_at` / `updated_at` | Timestamps (currently unpopulated) |
 
-Used by all three evaluation scripts as the test set.
+**Category breakdown (top 10):** prerequisite (340), eligibility_check (172), corequisite (120), grading_policy (62), prerequisite_lookup (56), discipline_policy (47), ojt_policy (44), term_plan (42), attendance_policy (40), withdrawal_policy (27)
+
+---
+
+### `dataset_train.xlsx`
+Training split — **874 Q&A pairs** (80% of the full dataset).
+
+| Program | Count | Difficulty | Count |
+|---------|-------|------------|-------|
+| CPE | 296 | basic | 752 (86%) |
+| ECE | 187 | complex | 122 (14%) |
+| EES | 136 | | |
+| GENERAL | 255 | | |
+
+Covers 23 categories. Used as the primary training/development set for the RAG systems.
+
+---
+
+### `dataset_test.xlsx`
+Test split — **219 Q&A pairs** (20% of the full dataset).
+
+| Program | Count | Difficulty | Count |
+|---------|-------|------------|-------|
+| CPE | 71 | basic | 185 (84%) |
+| ECE | 61 | complex | 34 (16%) |
+| EES | 20 | | |
+| GENERAL | 67 | | |
+
+Covers 21 categories (two rare categories — `program_info`, `student_policy` — fell entirely into train). Used as the held-out evaluation set for final metric reporting.
 
 ---
 
@@ -181,7 +214,7 @@ Use this file to verify your source documents were parsed correctly before runni
 **Run:**
 ```bash
 python embedding_experiment.py
-python embedding_experiment.py --sample-size 0   # use all 593 queries
+python embedding_experiment.py --sample-size 0   # use all 1093 queries
 ```
 
 > **Note on zero scores:** Categories `ojt_policy` and `curriculum_summary` showed zero retrieval scores across all five models. This is a data pipeline issue — source documents either absent or embedded as single oversized vectors — not a model deficiency. This is consistent methodology across all models.
@@ -214,7 +247,7 @@ Defaults: `localhost:3306`, user `root`, no password. Change `--port 3307` if us
 | `curriculum_courses` | `checklist_rows.json` (course placements per term) |
 | `prerequisites` | `checklist_rows.json` (H/S/C prerequisite rules) |
 | `documents` | `policy_sections.json` + `source_data.py` |
-| `faq_items` | `advising_dataset.xlsx` + `source_data.FAQ_LIST` |
+| `faq_items` | `dataset-query.xlsx` + `source_data.FAQ_LIST` |
 | `embedding_meta` | Metadata for all embedded documents |
 
 Tables not seeded here (populated at runtime): `users`, `students`, `advisers`, `enrollments`, `advising_sessions`, `advising_queries`, `advising_responses`, `plan_courses`, `metric_runs`, `metric_results`.
@@ -233,7 +266,7 @@ python seed_database.py --port 3307 --clear   # wipe and reseed
 
 Tests LLMs on DLSU CpE advising queries using _no retrieval_ — pure parametric knowledge only. Establishes the lower-bound baseline that Naive RAG and Improved RAG are compared against.
 
-**Test set:** All 593 Q&A pairs from `advising_dataset.xlsx` (stratified shuffle, seed=42)
+**Test set:** All 219 Q&A pairs from `dataset_test.xlsx` (held-out split)
 
 **Models tested:**
 
@@ -264,7 +297,7 @@ python standard_baseline.py
 
 Adds dense semantic retrieval to generation. Query is embedded → cosine search against ChromaDB → top-k chunks prepended as context → LLM generates answer. No BM25, no reranking, no hybrid fusion.
 
-**Retrieval:** All three ChromaDB collections (`checklist`, `policies`, `faqs`), top_k tested as a variable (k=3, 5, 10)
+**Retrieval:** All three ChromaDB collections (`checklist`, `policies`, `faqs`), top_k tested as a variable (k=3, 5, 10). Test set: 219 Q&A pairs from `dataset_test.xlsx`.
 
 **Models & parameter configs:** Same as `standard_baseline.py`
 
@@ -288,7 +321,7 @@ python naive_rag_baseline.py
 Two-phase evaluation architecture with hybrid retrieval, cross-encoder reranking, SQL routing, and citation tracking.
 
 **Phase 1 — Retrieval Only (local, no API calls)**
-Tests 7 retrieval configurations across all 593 queries. Best config selected by SO1 metrics.
+Tests 7 retrieval configurations across all 1,093 queries (full dataset-query.xlsx). Best config selected by SO1 metrics.
 
 | Config variable | Options tested |
 |----------------|---------------|
