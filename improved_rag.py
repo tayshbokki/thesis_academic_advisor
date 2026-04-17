@@ -19,7 +19,6 @@ Embedding model: intfloat/e5-small-v2
 Reranker: cross-encoder/ms-marco-MiniLM-L-6-v2
 
 Usage:
-    # Recommended workflow:
     python improved_rag.py --split train --phase 1   # sweep retrieval configs
     python improved_rag.py --split test  --phase 1   # held-out retrieval numbers
     python improved_rag.py --split train --phase 2   # sweep model x params
@@ -836,6 +835,66 @@ def compute_citation_metrics(cited: list[str], chunk_ids: list[str],
 
 from huggingface_hub import InferenceClient
 
+# Transient HTTP codes — worth retrying. 429 needs a long wait (rate limit);
+# 5xx are upstream issues, usually worth a short backoff.
+_TRANSIENT_HTTP_CODES = {429, 500, 502, 503, 504}
+
+
+def _call_with_retry(fn, *, max_attempts: int = 5, base_delay: float = 4.0):
+    """
+    Retry wrapper for API calls that may hit transient errors.
+
+    Strategy:
+      - 429 (rate limit): wait ~300s per attempt (HF serverless inference budget)
+      - 5xx (upstream): exponential backoff starting at base_delay
+      - Network/timeout errors: exponential backoff
+      - Other errors: re-raise immediately (not retryable)
+
+    Raises the last exception if all attempts fail — caller should catch and
+    skip the query rather than letting the whole run die.
+    """
+    last_exc = None
+    for attempt in range(1, max_attempts + 1):
+        try:
+            return fn()
+        except Exception as e:
+            last_exc = e
+            msg = str(e)
+            status = None
+
+            # Extract HTTP status from the exception if present
+            resp = getattr(e, "response", None)
+            if resp is not None:
+                status = getattr(resp, "status_code", None)
+            if status is None:
+                # Parse from message as fallback ("Server error '502 Bad Gateway'")
+                m = re.search(r"\b(4\d{2}|5\d{2})\b", msg)
+                if m:
+                    status = int(m.group(1))
+
+            # Non-retryable client errors
+            if status and 400 <= status < 500 and status != 429:
+                raise
+
+            # Rate-limit: long wait
+            if status == 429:
+                wait = 310.0
+            # Transient 5xx: exponential backoff
+            elif status in _TRANSIENT_HTTP_CODES or status is None:
+                wait = min(base_delay * (2 ** (attempt - 1)), 60.0)
+            else:
+                raise
+
+            if attempt == max_attempts:
+                break
+            print(f"      [retry {attempt}/{max_attempts}] "
+                  f"status={status} — waiting {wait:.0f}s — {msg[:120]}")
+            time.sleep(wait)
+
+    # All attempts exhausted
+    raise last_exc
+
+
 def generate(client: dict, model_id: str, context: str,
              question: str, config: dict) -> str:
 
@@ -853,7 +912,7 @@ def generate(client: dict, model_id: str, context: str,
                 provider="featherless-ai",
                 api_key=os.getenv("HF_TOKEN"),
             )
-            response = hf_client.chat_completion(
+            response = _call_with_retry(lambda: hf_client.chat_completion(
                 model=clean_model_id,
                 messages=[
                     {"role": "system", "content": SYSTEM_PROMPT},
@@ -862,9 +921,9 @@ def generate(client: dict, model_id: str, context: str,
                 max_tokens=config["max_tokens"],
                 temperature=max(config["temperature"], 1e-7),
                 top_p=top_p,
-            )
+            ))
         else:
-            response = client["instance"].chat_completion(
+            response = _call_with_retry(lambda: client["instance"].chat_completion(
                 model=model_id,
                 messages=[
                     {"role": "system", "content": SYSTEM_PROMPT},
@@ -873,7 +932,7 @@ def generate(client: dict, model_id: str, context: str,
                 max_tokens=config["max_tokens"],
                 temperature=max(config["temperature"], 1e-7),
                 top_p=top_p,
-            )
+            ))
         content = response.choices[0].message.content
         if content is None:
             content = getattr(response.choices[0].message, 'reasoning_content', None)
@@ -883,7 +942,7 @@ def generate(client: dict, model_id: str, context: str,
         from google import genai as google_genai
         from google.genai import types
         gemini_client = google_genai.Client(api_key=os.getenv("GEMINI_API_KEY"))
-        response = gemini_client.models.generate_content(
+        response = _call_with_retry(lambda: gemini_client.models.generate_content(
             model=model_id,
             contents=f"{SYSTEM_PROMPT}\n\n{user_msg}",
             config=types.GenerateContentConfig(
@@ -891,11 +950,11 @@ def generate(client: dict, model_id: str, context: str,
                 temperature=config["temperature"],
                 top_p=top_p,
             ),
-        )
+        ))
         answer = response.text.strip()
 
     elif client["provider"] == "openai":
-        response = client["instance"].chat.completions.create(
+        response = _call_with_retry(lambda: client["instance"].chat.completions.create(
             model=model_id,
             messages=[
                 {"role": "system", "content": SYSTEM_PROMPT},
@@ -904,7 +963,7 @@ def generate(client: dict, model_id: str, context: str,
             max_tokens=config["max_tokens"],
             temperature=config["temperature"],
             top_p=top_p,
-        )
+        ))
         answer = response.choices[0].message.content.strip()
 
     else:
@@ -1053,10 +1112,18 @@ def run_phase2(test_cases: list[dict], stores: dict, bm25_data: tuple,
                 # Build citation-aware context
                 context = build_citation_context(ret)
 
-                # Generate
+                # Generate — retry wrapper inside generate() handles transient
+                # 5xx/429. If retries exhaust or a non-retryable error occurs,
+                # skip this query rather than crash the whole Phase 2 run.
                 t_gen = time.time()
-                answer = generate(clients[provider], model_cfg["model_id"],
-                                  context, tc["question"], pcfg)
+                try:
+                    answer = generate(clients[provider], model_cfg["model_id"],
+                                      context, tc["question"], pcfg)
+                    gen_failed = False
+                except Exception as e:
+                    print(f"    [SKIP q{i+1}] {type(e).__name__}: {str(e)[:150]}")
+                    answer = "[API_ERROR — query skipped after retries exhausted]"
+                    gen_failed = True
                 gen_time = time.time() - t_gen
                 total_time = time.time() - t_start
 
@@ -1103,6 +1170,7 @@ def run_phase2(test_cases: list[dict], stores: dict, bm25_data: tuple,
                     "hallucination": is_halluc, "halluc_reason": h_reason,
                     "gen_time": round(gen_time, 3),
                     "total_time": round(total_time, 3),
+                    "gen_failed": gen_failed,
                 })
 
             # Batch BERTScore — loads roberta-large ONCE for all answers
