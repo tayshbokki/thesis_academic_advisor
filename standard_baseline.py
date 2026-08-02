@@ -6,9 +6,6 @@ generation.  The purpose is to establish a lower-bound baseline so that the
 subsequent RAG systems (Naive, Improved, Agentic) can be compared against
 pure parametric knowledge.
 
-Test cases are sampled from advising_dataset.xlsx (593 Q&A pairs) to ensure
-coverage across all question categories and programs.
-
 Metrics: ROUGE-1, ROUGE-L, BLEU, METEOR, BERTScore
 Also: hallucination detection, response-time compliance (< 5 s threshold)
 
@@ -40,9 +37,8 @@ nltk.download("punkt_tab", quiet=True)
 nltk.download("omw-1.4",   quiet=True)
 nltk.download("stopwords", quiet=True)
 
-# NLI-based context grounding scorer — not applicable for standard baseline
-# (no retrieved context exists). Defined here for API consistency with RAG scripts.
-_NLI_SCORER = None
+# AlignScore not used in standard baseline (no retrieved context)
+_ALIGN_SCORER = None
 
 
 # ═══════════════════════════════════════════════════════════════════════════
@@ -356,7 +352,7 @@ def batch_bert_score(answers: list[str], references: list[str]) -> list[float]:
 #   halluc_claim_rate (float)    — C5 unsupported-sentence ratio [0..1]
 #   factual_consistency (float)  — 1 − halluc_claim_rate  (thesis metric)
 #   completeness_score (float)   — required entities covered in answer [0..1]
-#   align_score (float|None)     — NLI entailment score vs context (RAG only; None here)
+#   align_score (float|None)     — AlignScore vs context (RAG only; None here)
 # ═══════════════════════════════════════════════════════════════════════════
 
 _NOISE_CODES = {
@@ -422,22 +418,6 @@ def _completeness_score(ground_truth: str, answer: str) -> float:
     return round(found / len(required), 4)
 
 
-def _nli_align_score(nli_scorer, context: str, answer: str) -> float:
-    """
-    Score how well the answer is grounded in the retrieved context using NLI.
-    Uses cross-encoder/nli-deberta-v3-small via sentence-transformers.
-    Returns entailment probability [0..1].
-    Truncates context to first 400 words to stay within model limits.
-    """
-    ctx_truncated = " ".join(context.split()[:400])
-    result = nli_scorer.predict([(ctx_truncated, answer)])
-    # cross-encoder NLI label order: contradiction=0, entailment=1, neutral=2
-    import torch, torch.nn.functional as F
-    scores = F.softmax(torch.tensor(result), dim=-1)
-    entailment_prob = float(scores[0][1])
-    return round(entailment_prob, 4)
-
-
 def detect_hallucination(
     ground_truth: str,
     answer: str,
@@ -482,11 +462,13 @@ def detect_hallucination(
     if fired == "OK" and claim_rate >= 0.60:
         fired = f"HIGH_CLAIM_RATE:{claim_rate:.2f}"
 
-    # NLI grounding check — only when retrieved context provided (RAG scripts)
+    # AlignScore — only when retrieved context provided (RAG scripts)
     align_sc = None
-    if context and _NLI_SCORER is not None:
+    if context and _ALIGN_SCORER is not None:
         try:
-            align_sc = _nli_align_score(_NLI_SCORER, context, answer)
+            align_sc = round(float(
+                _ALIGN_SCORER.score(contexts=[context], claims=[answer])[0]
+            ), 4)
         except Exception:
             align_sc = None
 
