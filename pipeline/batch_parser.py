@@ -42,28 +42,8 @@ import pdfplumber                          # pip install pdfplumber
 from docx import Document as DocxDocument  # pip install python-docx
 
 
-# ============================================================
-# CONFIGURATION
-# Update DATA_DIR to match your actual folder structure:
-#
-# DATA_DIR/
-# ├── CPE CHECKLISTS/
-# │   ├── CPE ID 118 CHECKLIST.pdf
-# │   └── ...
-# ├── ECE CHECKLISTS/
-# │   ├── ECE ID 118 CHECKLIST.pdf
-# │   └── ...
-# ├── EES CHECKLIST/
-# │   └── EES ID 125 CHECKLIST.pdf
-# └── POLICY DOCUMENTS/
-#     ├── GCOE_UG_OJT_Policy.pdf
-#     ├── Guidelines-for-Academic-Advising-2024.pdf
-#     ├── GCOE_Academic_Advising_Best_Practices.docx
-#     └── Thesis_Policies_and_Guidelines_latest.docx
-# ============================================================
-
-DATA_DIR   = Path("./data")
-OUTPUT_DIR = Path("./parsed_data")
+DATA_DIR   = Path("../DATA/raw_data")
+OUTPUT_DIR = Path("../DATA/parsed_data")
 
 
 # ============================================================

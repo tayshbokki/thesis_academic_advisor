@@ -50,8 +50,8 @@ DEFAULT_USER     = "root"
 DEFAULT_PASSWORD = ""
 DEFAULT_DB       = "dlsu_cpe_advising"
 
-PARSED_DIR   = Path("./parsed_data")
-DATASET_PATH = Path("./dataset_train.xlsx")  # train split only — run dataset_split.py first
+PARSED_DIR   = Path("../DATA/parsed_data")
+DATASET_PATH = Path("../DATA/splits/dataset_train.xlsx")  # train split only — run dataset_split.py first
 
 # Embedding model confirmed by experiment
 EMBEDDING_MODEL = "intfloat/e5-small-v2"

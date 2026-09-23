@@ -64,8 +64,8 @@ except Exception as _ne:
 # 1. LOAD TEST CASES FROM advising_dataset.xlsx
 # ═══════════════════════════════════════════════════════════════════════════
 
-DATASET_TRAIN_PATH = "dataset_train.xlsx"
-DATASET_TEST_PATH  = "dataset_test.xlsx"
+DATASET_TRAIN_PATH = "../DATA/splits/dataset_train.xlsx"
+DATASET_TEST_PATH  = "../DATA/splitsdataset_test.xlsx"
 
 
 def load_dataset(path: str) -> list[dict]:
@@ -220,7 +220,7 @@ def compute_ndcg_at_k(ranked_ids: list[str], relevant: set[str], k: int) -> floa
 # 2. CHROMADB — Connect to 3 collections built by chunking_pipeline.py
 # ═══════════════════════════════════════════════════════════════════════════
 
-CHROMA_BASE_DIR  = "./chroma_store"
+CHROMA_BASE_DIR  = "../DATA/chroma_store"
 EMBEDDING_MODEL  = "intfloat/e5-small-v2"
 E5_QUERY_PREFIX  = "query: "
 

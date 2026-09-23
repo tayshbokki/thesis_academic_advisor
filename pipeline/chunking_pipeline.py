@@ -52,7 +52,7 @@ embedding_model = HuggingFaceEmbeddings(
 # CHROMADB COLLECTIONS
 # ============================================================
 
-CHROMA_BASE_DIR = "./chroma_store"
+CHROMA_BASE_DIR = "../DATA/chroma_store"
 
 checklist_vectorstore = Chroma(
     collection_name="checklist",
@@ -602,8 +602,8 @@ if __name__ == "__main__":
     parser = argparse.ArgumentParser(
         description="Ingest all parsed documents into ChromaDB."
     )
-    parser.add_argument("--parsed-dir", type=Path, default=Path("./parsed_data"))
-    parser.add_argument("--dataset",    type=Path, default=Path("./dataset_train.xlsx"))
+    parser.add_argument("--parsed-dir", type=Path, default=Path("../DATA/parsed_data"))
+    parser.add_argument("--dataset",    type=Path, default=Path("../DATA/splits/dataset_train.xlsx"))
     args = parser.parse_args()
 
     # ----------------------------------------------------------

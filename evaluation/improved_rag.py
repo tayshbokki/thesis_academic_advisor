@@ -51,9 +51,9 @@ nltk.download("omw-1.4",   quiet=True)
 # CONFIG
 # ═══════════════════════════════════════════════════════════════════════════
 
-DATASET_TRAIN_PATH = "dataset_train.xlsx"
-DATASET_TEST_PATH  = "dataset_test.xlsx"
-CHROMA_BASE_DIR    = "./chroma_store"
+DATASET_TRAIN_PATH = "../DATA/splits/dataset_train.xlsx"
+DATASET_TEST_PATH  = "../DATA/splits/dataset_test.xlsx"
+CHROMA_BASE_DIR    = "../DATA/chroma_store"
 EMBEDDING_MODEL    = "intfloat/e5-small-v2"
 RERANKER_MODEL     = "cross-encoder/ms-marco-MiniLM-L-6-v2"
 E5_QUERY_PREFIX    = "query: "

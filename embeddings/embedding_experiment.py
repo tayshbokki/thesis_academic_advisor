@@ -31,9 +31,9 @@ from pathlib import Path
 from typing import List, Dict, Any, Tuple, Optional
 from sentence_transformers import SentenceTransformer
 
-PARSED_DIR   = Path("./parsed_data")
+PARSED_DIR   = Path("../DATA//parsed_data")
 OUTPUT_DIR   = Path("./embedding_experiment")
-DATASET_PATH = Path("./advising_dataset.xlsx")
+DATASET_PATH = Path("../DATA/splits/dataset-query.xlsx")
 DEFAULT_SAMPLE_SIZE = 60
 DEFAULT_SEED = 42
 K_VALUES = [1, 3, 5, 10]

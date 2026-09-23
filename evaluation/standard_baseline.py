@@ -45,7 +45,7 @@ _ALIGN_SCORER = None
 # 1. LOAD TEST CASES FROM advising_dataset.xlsx
 # ═══════════════════════════════════════════════════════════════════════════
 
-DATASET_PATH = "dataset_test.xlsx"
+DATASET_PATH = "../DATA/splits/dataset_test.xlsx"
 
 def load_dataset(path: str) -> list[dict]:
     """Load all Q&A pairs from the advising dataset.
