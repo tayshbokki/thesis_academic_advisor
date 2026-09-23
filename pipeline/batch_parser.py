@@ -576,6 +576,7 @@ def run_batch_parse(data_dir: Path, output_dir: Path) -> None:
     # 3. Add handbook sections from source_data.py
     # ----------------------------------------------------------
     try:
+        sys.path.insert(0, str(Path(__file__).resolve().parent.parent / "DATA" / "raw_data"))
         from source_data import HANDBOOK_SECTIONS
         print(f"\nLoading {len(HANDBOOK_SECTIONS)} handbook section(s) from source_data.py...")
         for section in HANDBOOK_SECTIONS:

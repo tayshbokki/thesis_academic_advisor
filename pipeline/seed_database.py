@@ -352,7 +352,7 @@ def seed_faq_items(cursor, dataset_path: Path,
 
     # --- Source B: source_data.FAQ_LIST ---
     try:
-        sys.path.insert(0, str(Path(".").resolve()))
+        sys.path.insert(0, str(Path(__file__).resolve().parent.parent / "DATA" / "raw_data"))
         from source_data import FAQ_LIST
         for faq in FAQ_LIST:
             if not faq.get("verified", True):

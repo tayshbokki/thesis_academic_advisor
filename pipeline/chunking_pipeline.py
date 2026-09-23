@@ -724,6 +724,7 @@ if __name__ == "__main__":
     # 4. Ingest hand-written FAQs from source_data.py
     # ----------------------------------------------------------
     try:
+        sys.path.insert(0, str(Path(__file__).resolve().parent.parent / "DATA" / "raw_data"))
         from source_data import FAQ_LIST
         verified = [f for f in FAQ_LIST if f.get("verified", True)]
         print(f"\n[FAQs] Ingesting {len(verified)} hand-written FAQs from source_data...")
