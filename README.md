@@ -11,29 +11,51 @@
 ```
 thesis_academic_advisor/
 │
-├── Data & Evaluation Dataset
-│   ├── dataset-query.xlsx           # Full dataset — 1,093 Q&A pairs, 23 categories
-│   ├── dataset_train.xlsx           # Training split — 874 Q&A pairs (80%)
-│   ├── dataset_test.xlsx            # Test split — 219 Q&A pairs (20%)
-│   ├── parse_report.json            # Parser output summary (17 checklists, 4 policy docs)
-│   └── results_summary.json         # Embedding experiment benchmark results
+├── DATA/
+│   ├── raw_data/
+│   │   ├── source_data.py                          # Step 0 — Raw handbook text & curated FAQs
+│   │   └── BS ECE, CPE, CPES, and EES CHECKLISTS/   # 17 checklist PDFs + 4 policy files
+│   │       ├── CPE CHECKLISTS/
+│   │       ├── ECE CHECKLISTS/
+│   │       ├── EES CHECKLIST/
+│   │       └── POLICY DOCUMENTS/
+│   └── splits/
+│       ├── dataset-query.xlsx        # Full dataset — 1,093 Q&A pairs, 23 categories
+│       ├── dataset_train.xlsx        # Training split — 874 Q&A pairs (80%)
+│       └── dataset_test.xlsx         # Test split — 219 Q&A pairs (20%)
 │
-├── Pipeline (run in order)
-│   ├── source_data.py               # Step 0 — Raw handbook text & curated FAQs
-│   ├── batch_parser.py              # Step 1 — Parse PDFs/DOCX → JSON
-│   ├── chunking_pipeline.py         # Step 2 — Chunk & ingest into ChromaDB
-│   ├── embedding_experiment.py      # Step 3 — Benchmark 5 embedding models
-│   ├── setup_database.py            # Step 4a — Create MySQL schema
-│   └── seed_database.py             # Step 4b — Populate MySQL from parsed data
+├── pipeline/ (run in order)
+│   ├── batch_parser.py               # Step 1 — Parse PDFs/DOCX → JSON
+│   ├── dataset_split.py              # Step 1b — Split dataset-query.xlsx → train/test
+│   ├── chunking_pipeline.py          # Step 2 — Chunk & ingest into ChromaDB
+│   ├── setup_database.py             # Step 3a — Create MySQL schema
+│   ├── seed_database.py              # Step 3b — Populate MySQL from parsed data
+│   └── dlsu_cpe_schema.sql           # MySQL schema definition
 │
-├── Evaluation Systems
-│   ├── standard_baseline.py         # System 1 — No-RAG baseline
-│   ├── naive_rag_baseline.py        # System 2 — Naive RAG (dense retrieval only)
-│   └── improved_rag.py              # System 3 — Improved RAG (hybrid + reranking + SQL)
+├── embeddings/
+│   ├── embedding_experiment.py       # Benchmarks 5 embedding models
+│   └── embedding_experiment/         # results_raw.json, results_summary.json, results_report.txt
 │
-└── Thesis Document
-    └── AISL-1-2526-C1-THSCP4B.pdf  # Thesis manuscript
+├── evaluation/
+│   ├── standard_baseline.py          # System 1 — No-RAG baseline
+│   ├── naive_rag_baseline.py         # System 2 — Naive RAG (dense retrieval only)
+│   ├── improved_rag.py               # System 3 — Improved RAG (hybrid + reranking + SQL)
+│   ├── merge_norag.py                # Merges split no-RAG result files
+│   ├── rescore_phase2.py             # Rescoring utility for Improved RAG Phase 2 output
+│   └── gt_size_analysis.py           # Ground-truth size analysis
+│
+├── demo/
+│   ├── demo_app.py                   # Flask API serving the Improved RAG system
+│   └── frontend.html                 # Minimal chat UI for the demo API
+│
+├── results/                           # Generated evaluation outputs, charts, and reports
+│
+├── PROTOTYPE_1/                       # Early prototype — superseded by pipeline/ and evaluation/
+│
+└── AISL-1-2526-C1-THSCP4B.pdf         # Thesis manuscript
 ```
+
+> **Note:** This repo was reorganized from an earlier flat layout into the folder structure above. All commands below assume you run them **from the repository root** (`thesis_academic_advisor/`), not from inside a subfolder.
 
 ---
 
@@ -51,11 +73,30 @@ OPENAI_API_KEY=your_openai_key        # optional
 pip install openpyxl nltk rouge-score bert-score huggingface-hub chromadb
 pip install sentence-transformers langchain langchain-chroma langchain-huggingface
 pip install pdfplumber python-docx rank-bm25 mysql-connector-python pandas numpy
+pip install flask flask-cors python-dotenv   # required by demo/demo_app.py
 ```
 
 ### Infrastructure
-- **ChromaDB** — local vector store, auto-created at `./chroma_store/`
+- **ChromaDB** — local vector store, auto-created at `./chroma_store/` (repo root, when scripts are run from there)
 - **XAMPP MySQL** — running on `localhost:3307`, database `dlsu_cpe_advising`, user `root`, no password
+
+### ⚠️ Known path issues after the folder reorganization
+A few scripts still have their dataset/schema paths hardcoded to the **old flat layout** and don't yet expose a CLI flag to override them. Until these are updated, the affected scripts will fail (file-not-found) if run as-is:
+
+| Script | Hardcoded constant | Needs to point to |
+|--------|--------------------|--------------------|
+| `pipeline/dataset_split.py` | `DATASET_PATH`, `TRAIN_PATH`, `TEST_PATH` (module-level, no CLI flag) | `DATA/splits/dataset-query.xlsx`, `DATA/splits/dataset_train.xlsx`, `DATA/splits/dataset_test.xlsx` |
+| `evaluation/standard_baseline.py` | `DATASET_PATH = "dataset_test.xlsx"` (no argparse at all) | `DATA/splits/dataset_test.xlsx` |
+| `evaluation/naive_rag_baseline.py` | `DATASET_TRAIN_PATH`, `DATASET_TEST_PATH` (only `--split` is a CLI flag) | `DATA/splits/dataset_train.xlsx`, `DATA/splits/dataset_test.xlsx` |
+| `evaluation/improved_rag.py` | `DATASET_TRAIN_PATH`, `DATASET_TEST_PATH` (only `--phase`/`--split` are CLI flags) | `DATA/splits/dataset_train.xlsx`, `DATA/splits/dataset_test.xlsx` |
+| `demo/demo_app.py` | no argparse; assumes `./chroma_store` at repo root | fine if run from repo root, otherwise needs editing |
+
+Scripts that **do** already support the new layout via CLI flags:
+- `pipeline/batch_parser.py` — pass `--data-dir DATA/raw_data`
+- `embeddings/embedding_experiment.py` — pass `--dataset DATA/splits/dataset-query.xlsx`
+- `pipeline/chunking_pipeline.py` — pass `--dataset DATA/splits/dataset_train.xlsx`
+- `pipeline/setup_database.py` — pass `--schema pipeline/dlsu_cpe_schema.sql`
+- `pipeline/seed_database.py` — pass `--dataset DATA/splits/dataset_train.xlsx`
 
 ---
 
@@ -63,7 +104,7 @@ pip install pdfplumber python-docx rank-bm25 mysql-connector-python pandas numpy
 
 ---
 
-### `dataset-query.xlsx` _(replaces `advising_dataset.xlsx`)_
+### `DATA/splits/dataset-query.xlsx` _(replaces `advising_dataset.xlsx`)_
 The full evaluation dataset — ground truth for all three evaluation systems. Contains **1,093 Q&A pairs** spanning **23 categories** for CpE, ECE, EES, and GENERAL programs. This is the combined pool from which the train/test split was derived.
 
 | Column | Description |
@@ -86,7 +127,7 @@ The full evaluation dataset — ground truth for all three evaluation systems. C
 
 ---
 
-### `dataset_train.xlsx`
+### `DATA/splits/dataset_train.xlsx`
 Training split — **874 Q&A pairs** (80% of the full dataset).
 
 | Program | Count | Difficulty | Count |
@@ -100,7 +141,7 @@ Covers 23 categories. Used as the primary training/development set for the RAG s
 
 ---
 
-### `dataset_test.xlsx`
+### `DATA/splits/dataset_test.xlsx`
 Test split — **219 Q&A pairs** (20% of the full dataset).
 
 | Program | Count | Difficulty | Count |
@@ -114,28 +155,25 @@ Covers 21 categories (two rare categories — `program_info`, `student_policy` �
 
 ---
 
-### `source_data.py`
+### `DATA/raw_data/source_data.py`
 **Step 0 of the pipeline.** Contains two static data structures that feed directly into the chunking pipeline:
 
 - **`HANDBOOK_SECTIONS`** — Official policy text from the DLSU Student Handbook and official memos, structured as ingestion-ready objects. Each entry has a `doc_type` field used for filtered ChromaDB retrieval (e.g., `retention_policy`, `grading`, `leave_of_absence`). Includes the updated Retention Policy (effective Term 2 AY 2025–2026 per Provost memo).
 - **`FAQ_LIST`** — Adviser-written FAQ entries derived from real CpE adviser communications, ready for ingestion via `chunk_and_ingest_faqs()`.
 
-**Usage:**
-```python
-from source_data import HANDBOOK_SECTIONS, FAQ_LIST
-```
+`pipeline/batch_parser.py`, `pipeline/chunking_pipeline.py`, and `pipeline/seed_database.py` each insert `DATA/raw_data` onto `sys.path` at runtime before importing this module, so it does **not** need to sit next to those scripts.
 
 ---
 
-### `batch_parser.py`
+### `pipeline/batch_parser.py`
 **Step 1 of the pipeline.** Parses all source documents into clean Python objects and saves them as JSON for use in the embedding experiment — _before_ any chunking or ChromaDB ingestion.
 
 **Documents handled:**
 - 17 checklist PDFs (CPE ID 118–125, ECE ID 118–125, EES ID 125)
 - 4 policy files: `GCOE_UG_OJT_Policy.pdf`, `Guidelines-for-Academic-Advising-2024.pdf`, `GCOE_Academic_Advising_Best_Practices.docx`, `Thesis_Policies_and_Guidelines_latest.docx`
-- Handbook sections from `source_data.py`
+- Handbook sections from `DATA/raw_data/source_data.py`
 
-**Outputs** (saved to `./parsed_data/`):
+**Outputs** (saved to `./parsed_data/`, relative to wherever you run the command from):
 
 | File | Contents |
 |------|----------|
@@ -143,17 +181,16 @@ from source_data import HANDBOOK_SECTIONS, FAQ_LIST
 | `policy_sections.json` | All policy content as plain-text sections (9 sections total) |
 | `parse_report.json` | Summary stats and parse warnings |
 
-**Run:**
+**Run (from repo root):**
 ```bash
-python batch_parser.py
-python batch_parser.py --data-dir /your/custom/path
+python pipeline/batch_parser.py --data-dir DATA/raw_data
 ```
 
 > **Known issue:** A repeated heading in the Academic Advising Best Practices section is a `parse_policy_docx()` DOCX parser artifact. The parsed output is otherwise structurally valid.
 
 ---
 
-### `parse_report.json`
+### `parsed_data/parse_report.json`
 Output of `batch_parser.py`. Summarizes what was successfully parsed and any warnings.
 
 - **17 checklist files** parsed — 2,234 total course rows extracted
@@ -164,7 +201,7 @@ Use this file to verify your source documents were parsed correctly before runni
 
 ---
 
-### `chunking_pipeline.py`
+### `pipeline/chunking_pipeline.py`
 **Step 2 of the pipeline.** Chunks all parsed documents and ingests them into three ChromaDB vector store collections using `intfloat/e5-small-v2` embeddings.
 
 **Collections:**
@@ -178,7 +215,7 @@ Use this file to verify your source documents were parsed correctly before runni
 **Key design choices:**
 - Embedding model: `intfloat/e5-small-v2` (selected via `embedding_experiment.py`)
 - E5 prefix convention: `"passage: "` prepended to all corpus documents; `"query: "` prepended to all search queries
-- ChromaDB persist directory: `./chroma_store/`
+- ChromaDB persist directory: `./chroma_store/` (repo root)
 
 **Ingestion functions:**
 
@@ -189,10 +226,15 @@ Use this file to verify your source documents were parsed correctly before runni
 | `chunk_and_ingest_policy_text(**section)` | Ingests pre-extracted policy text → ChromaDB |
 | `chunk_and_ingest_faqs(faq_list)` | Ingests FAQ list → ChromaDB |
 
+**Run (from repo root):**
+```bash
+python pipeline/chunking_pipeline.py --parsed-dir parsed_data --dataset DATA/splits/dataset_train.xlsx
+```
+
 ---
 
-### `embedding_experiment.py`
-**Step 3 of the pipeline.** Benchmarks 5 embedding models on the actual parsed corpus using stratified sampling across all 21 question categories.
+### `embeddings/embedding_experiment.py`
+**Benchmarks 5 embedding models** on the actual parsed corpus using stratified sampling across all 21 question categories.
 
 **Models benchmarked:**
 
@@ -206,37 +248,36 @@ Use this file to verify your source documents were parsed correctly before runni
 
 **Metrics:** Recall@K (K=1,3,5,10), MRR, NDCG@10, cosine gap, embedding speed
 
-**Outputs** (saved to `./embedding_experiment/`):
+**Outputs** (saved under `embeddings/embedding_experiment/` when `--output-dir` is set as below):
 - `results_raw.json` — per-query per-model results
 - `results_summary.json` — aggregated metrics per model
 - `results_report.txt` — human-readable comparison table
 
-**Run:**
+**Run (from repo root):**
 ```bash
-python embedding_experiment.py
-python embedding_experiment.py --sample-size 0   # use all 1093 queries
+python embeddings/embedding_experiment.py --dataset DATA/splits/dataset-query.xlsx --parsed-dir parsed_data --output-dir embeddings/embedding_experiment
+python embeddings/embedding_experiment.py --dataset DATA/splits/dataset-query.xlsx --parsed-dir parsed_data --output-dir embeddings/embedding_experiment --sample-size 0   # use all 1093 queries
 ```
 
 > **Note on zero scores:** Categories `ojt_policy` and `curriculum_summary` showed zero retrieval scores across all five models. This is a data pipeline issue — source documents either absent or embedded as single oversized vectors — not a model deficiency. This is consistent methodology across all models.
 
 ---
 
-### `setup_database.py`
-**Step 4a.** Creates the `dlsu_cpe_advising` MySQL database and applies `dlsu_cpe_schema.sql`.
+### `pipeline/setup_database.py`
+**Step 3a.** Creates the `dlsu_cpe_advising` MySQL database and applies `dlsu_cpe_schema.sql`.
 
-**Run:**
+**Run (from repo root):**
 ```bash
-python setup_database.py
-python setup_database.py --password yourpassword
-python setup_database.py --host localhost --port 3306
+python pipeline/setup_database.py --port 3307 --schema pipeline/dlsu_cpe_schema.sql
+python pipeline/setup_database.py --password yourpassword --schema pipeline/dlsu_cpe_schema.sql
 ```
 
-Defaults: `localhost:3306`, user `root`, no password. Change `--port 3307` if using XAMPP MariaDB on a non-default port.
+Defaults: `localhost:3306`, user `root`, no password. Change `--port 3307` if using XAMPP MariaDB on a non-default port. The `--schema` flag is required now that the file lives under `pipeline/` rather than the repo root.
 
 ---
 
-### `seed_database.py`
-**Step 4b.** Populates the MySQL database from all parsed source data.
+### `pipeline/seed_database.py`
+**Step 3b.** Populates the MySQL database from all parsed source data.
 
 **Tables seeded:**
 
@@ -247,21 +288,20 @@ Defaults: `localhost:3306`, user `root`, no password. Change `--port 3307` if us
 | `curriculum_courses` | `checklist_rows.json` (course placements per term) |
 | `prerequisites` | `checklist_rows.json` (H/S/C prerequisite rules) |
 | `documents` | `policy_sections.json` + `source_data.py` |
-| `faq_items` | `dataset-query.xlsx` + `source_data.FAQ_LIST` |
+| `faq_items` | `dataset_train.xlsx` + `source_data.FAQ_LIST` |
 | `embedding_meta` | Metadata for all embedded documents |
 
 Tables not seeded here (populated at runtime): `users`, `students`, `advisers`, `enrollments`, `advising_sessions`, `advising_queries`, `advising_responses`, `plan_courses`, `metric_runs`, `metric_results`.
 
-**Run:**
+**Run (from repo root):**
 ```bash
-python seed_database.py
-python seed_database.py --port 3307
-python seed_database.py --port 3307 --clear   # wipe and reseed
+python pipeline/seed_database.py --port 3307 --dataset DATA/splits/dataset_train.xlsx
+python pipeline/seed_database.py --port 3307 --dataset DATA/splits/dataset_train.xlsx --clear   # wipe and reseed
 ```
 
 ---
 
-### `standard_baseline.py`
+### `evaluation/standard_baseline.py`
 **Evaluation System 1 — No-RAG Baseline.**
 
 Tests LLMs on DLSU CpE advising queries using _no retrieval_ — pure parametric knowledge only. Establishes the lower-bound baseline that Naive RAG and Improved RAG are compared against.
@@ -287,12 +327,13 @@ Tests LLMs on DLSU CpE advising queries using _no retrieval_ — pure parametric
 
 **Run:**
 ```bash
-python standard_baseline.py
+python evaluation/standard_baseline.py
 ```
+> ⚠️ This script's `DATASET_PATH` is still hardcoded to `"dataset_test.xlsx"` with no CLI override — see the Known path issues table above. Update that constant to `DATA/splits/dataset_test.xlsx` before running.
 
 ---
 
-### `naive_rag_baseline.py`
+### `evaluation/naive_rag_baseline.py`
 **Evaluation System 2 — Naive RAG Baseline.**
 
 Adds dense semantic retrieval to generation. Query is embedded → cosine search against ChromaDB → top-k chunks prepended as context → LLM generates answer. No BM25, no reranking, no hybrid fusion.
@@ -305,23 +346,24 @@ Adds dense semantic retrieval to generation. Query is embedded → cosine search
 - **SO1 (Retrieval):** Precision@K, Recall@K, MRR, NDCG@10, cosine similarity
 - **SO3 (Generation):** ROUGE-1, ROUGE-L, BLEU, METEOR, BERTScore, hallucination rate, retrieval time, response time
 
-**Output:** `naive_rag_results.json`
+**Output:** `naive_rag_{split}_results.json`
 
 **Run:**
 ```bash
-# Requires ChromaDB to be populated first (chunking_pipeline.py)
-python naive_rag_baseline.py
+# Requires ChromaDB to be populated first (pipeline/chunking_pipeline.py)
+python evaluation/naive_rag_baseline.py --split test
 ```
+> ⚠️ `DATASET_TRAIN_PATH`/`DATASET_TEST_PATH` are still hardcoded — see the known path issues table above.
 
 ---
 
-### `improved_rag.py`
+### `evaluation/improved_rag.py`
 **Evaluation System 3 — Improved RAG.**
 
 Two-phase evaluation architecture with hybrid retrieval, cross-encoder reranking, SQL routing, and citation tracking.
 
 **Phase 1 — Retrieval Only (local, no API calls)**
-Tests 7 retrieval configurations across all 1,093 queries (full dataset-query.xlsx). Best config selected by SO1 metrics.
+Tests 7 retrieval configurations across all 1,093 queries (full `dataset-query.xlsx`). Best config selected by SO1 metrics.
 
 | Config variable | Options tested |
 |----------------|---------------|
@@ -342,19 +384,30 @@ Tests 4 models × 8 generation configs using the winning retrieval config, with:
 **SQL connection:** `localhost:3307`, `dlsu_cpe_advising`, `root`/no password
 
 **Outputs:**
-- `improved_rag_phase1_results.json` — retrieval config benchmark
-- `improved_rag_phase2_results.json` — full generation results
+- `improved_rag_phase1_{split}_results.json` — retrieval config benchmark
+- `improved_rag_phase2_{split}_results.json` — full generation results
 
 **Run:**
 ```bash
-python improved_rag.py              # both phases
-python improved_rag.py --phase 1   # retrieval only (no API keys needed)
-python improved_rag.py --phase 2   # generation only (needs Phase 1 results)
+python evaluation/improved_rag.py --phase 1 --split test
+python evaluation/improved_rag.py --phase 2 --split test
 ```
+> ⚠️ `DATASET_TRAIN_PATH`/`DATASET_TEST_PATH` are still hardcoded — see the known path issues table above.
 
 ---
 
-### `results_summary.json`
+### `demo/demo_app.py` + `demo/frontend.html`
+Flask API (`demo_app.py`) exposing the Improved RAG system over HTTP, with a minimal static chat UI (`frontend.html`) for manual testing. Reads from `./chroma_store` and the MySQL database, so `chunking_pipeline.py` and `seed_database.py` must be run first.
+
+**Run (from repo root):**
+```bash
+python demo/demo_app.py
+```
+Serves on `http://localhost:5000` by default.
+
+---
+
+### `embeddings/embedding_experiment/results_summary.json`
 Output of `embedding_experiment.py`. Contains aggregated SO1 metrics per embedding model across all question categories, used to justify the selection of `intfloat/e5-small-v2` as the system embedding model.
 
 ---
@@ -368,24 +421,29 @@ The thesis manuscript document.
 
 ```bash
 # 1. Parse all source documents
-python batch_parser.py
+python pipeline/batch_parser.py --data-dir DATA/raw_data
+
+# 1b. Split the full dataset into train/test (only if not already split)
+#     Note: dataset_split.py still has hardcoded paths — see known path issues above
+python pipeline/dataset_split.py
 
 # 2. Benchmark embedding models (optional — selection already made)
-python embedding_experiment.py
+python embeddings/embedding_experiment.py --dataset DATA/splits/dataset-query.xlsx --parsed-dir parsed_data --output-dir embeddings/embedding_experiment
 
 # 3. Chunk and ingest into ChromaDB
 #    (edit chunking_pipeline.py to call ingestion functions for your source files)
-python chunking_pipeline.py
+python pipeline/chunking_pipeline.py --parsed-dir parsed_data --dataset DATA/splits/dataset_train.xlsx
 
 # 4. Set up MySQL database
-python setup_database.py --port 3307
-python seed_database.py --port 3307
+python pipeline/setup_database.py --port 3307 --schema pipeline/dlsu_cpe_schema.sql
+python pipeline/seed_database.py --port 3307 --dataset DATA/splits/dataset_train.xlsx
 
 # 5. Run evaluations
-python standard_baseline.py
-python naive_rag_baseline.py
-python improved_rag.py --phase 1   # find best retrieval config first
-python improved_rag.py --phase 2   # then run full generation
+#    Note: these three scripts still have hardcoded dataset paths — see known path issues above
+python evaluation/standard_baseline.py
+python evaluation/naive_rag_baseline.py --split test
+python evaluation/improved_rag.py --phase 1 --split test   # find best retrieval config first
+python evaluation/improved_rag.py --phase 2 --split test   # then run full generation
 ```
 
 > **Tip:** Run scripts from a standalone PowerShell window (not inside VS Code terminal) to prevent process loss if VS Code crashes during long evaluation runs.
@@ -396,8 +454,8 @@ python improved_rag.py --phase 2   # then run full generation
 
 | Objective | Description | Scripts |
 |-----------|-------------|---------|
-| **SO1** | Retrieval quality — MRR, NDCG@10, Precision@K, Recall@K, cosine similarity | `embedding_experiment.py`, `naive_rag_baseline.py`, `improved_rag.py` |
-| **SO2** | SQL integration — structured query routing via intent detection | `improved_rag.py` (Phase 2) |
+| **SO1** | Retrieval quality — MRR, NDCG@10, Precision@K, Recall@K, cosine similarity | `embeddings/embedding_experiment.py`, `evaluation/naive_rag_baseline.py`, `evaluation/improved_rag.py` |
+| **SO2** | SQL integration — structured query routing via intent detection | `evaluation/improved_rag.py` (Phase 2) |
 | **SO3** | Generation quality — ROUGE, BLEU, METEOR, BERTScore, citation tracking | All three evaluation scripts |
 | **SO4** | System performance — response time, throughput, <5s compliance | All three evaluation scripts |
 
