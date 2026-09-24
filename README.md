@@ -77,26 +77,16 @@ pip install flask flask-cors python-dotenv   # required by demo/demo_app.py
 ```
 
 ### Infrastructure
-- **ChromaDB** — local vector store, auto-created at `./chroma_store/` (repo root, when scripts are run from there)
+- **ChromaDB** — local vector store, auto-created at `chroma_store/` in the repo root (path is resolved relative to each script's own location, so it works no matter which directory you run commands from)
 - **XAMPP MySQL** — running on `localhost:3307`, database `dlsu_cpe_advising`, user `root`, no password
 
-### ⚠️ Known path issues after the folder reorganization
-A few scripts still have their dataset/schema paths hardcoded to the **old flat layout** and don't yet expose a CLI flag to override them. Until these are updated, the affected scripts will fail (file-not-found) if run as-is:
-
-| Script | Hardcoded constant | Needs to point to |
-|--------|--------------------|--------------------|
-| `pipeline/dataset_split.py` | `DATASET_PATH`, `TRAIN_PATH`, `TEST_PATH` (module-level, no CLI flag) | `DATA/splits/dataset-query.xlsx`, `DATA/splits/dataset_train.xlsx`, `DATA/splits/dataset_test.xlsx` |
-| `evaluation/standard_baseline.py` | `DATASET_PATH = "dataset_test.xlsx"` (no argparse at all) | `DATA/splits/dataset_test.xlsx` |
-| `evaluation/naive_rag_baseline.py` | `DATASET_TRAIN_PATH`, `DATASET_TEST_PATH` (only `--split` is a CLI flag) | `DATA/splits/dataset_train.xlsx`, `DATA/splits/dataset_test.xlsx` |
-| `evaluation/improved_rag.py` | `DATASET_TRAIN_PATH`, `DATASET_TEST_PATH` (only `--phase`/`--split` are CLI flags) | `DATA/splits/dataset_train.xlsx`, `DATA/splits/dataset_test.xlsx` |
-| `demo/demo_app.py` | no argparse; assumes `./chroma_store` at repo root | fine if run from repo root, otherwise needs editing |
-
-Scripts that **do** already support the new layout via CLI flags:
-- `pipeline/batch_parser.py` — pass `--data-dir DATA/raw_data`
-- `embeddings/embedding_experiment.py` — pass `--dataset DATA/splits/dataset-query.xlsx`
-- `pipeline/chunking_pipeline.py` — pass `--dataset DATA/splits/dataset_train.xlsx`
-- `pipeline/setup_database.py` — pass `--schema pipeline/dlsu_cpe_schema.sql`
-- `pipeline/seed_database.py` — pass `--dataset DATA/splits/dataset_train.xlsx`
+### Path handling after the folder reorganization
+Every script's dataset, schema, and vector-store paths are now resolved relative to the script's own file location (via `Path(__file__).resolve().parent...`), not the current working directory — so it doesn't matter which folder you `cd` into before running a command. A few scripts also expose CLI flags if you want to point them somewhere non-default:
+- `pipeline/batch_parser.py` — `--data-dir` (default: `DATA/raw_data`)
+- `embeddings/embedding_experiment.py` — `--dataset`, `--parsed-dir`, `--output-dir`
+- `pipeline/chunking_pipeline.py` — `--dataset`, `--parsed-dir`
+- `pipeline/setup_database.py` — `--schema` (default: `pipeline/dlsu_cpe_schema.sql`)
+- `pipeline/seed_database.py` — `--dataset`, `--parsed-dir`
 
 ---
 
@@ -329,7 +319,6 @@ Tests LLMs on DLSU CpE advising queries using _no retrieval_ — pure parametric
 ```bash
 python evaluation/standard_baseline.py
 ```
-> ⚠️ This script's `DATASET_PATH` is still hardcoded to `"dataset_test.xlsx"` with no CLI override — see the Known path issues table above. Update that constant to `DATA/splits/dataset_test.xlsx` before running.
 
 ---
 
@@ -353,7 +342,6 @@ Adds dense semantic retrieval to generation. Query is embedded → cosine search
 # Requires ChromaDB to be populated first (pipeline/chunking_pipeline.py)
 python evaluation/naive_rag_baseline.py --split test
 ```
-> ⚠️ `DATASET_TRAIN_PATH`/`DATASET_TEST_PATH` are still hardcoded — see the known path issues table above.
 
 ---
 
@@ -392,7 +380,6 @@ Tests 4 models × 8 generation configs using the winning retrieval config, with:
 python evaluation/improved_rag.py --phase 1 --split test
 python evaluation/improved_rag.py --phase 2 --split test
 ```
-> ⚠️ `DATASET_TRAIN_PATH`/`DATASET_TEST_PATH` are still hardcoded — see the known path issues table above.
 
 ---
 
@@ -424,7 +411,6 @@ The thesis manuscript document.
 python pipeline/batch_parser.py --data-dir DATA/raw_data
 
 # 1b. Split the full dataset into train/test (only if not already split)
-#     Note: dataset_split.py still has hardcoded paths — see known path issues above
 python pipeline/dataset_split.py
 
 # 2. Benchmark embedding models (optional — selection already made)
@@ -439,7 +425,6 @@ python pipeline/setup_database.py --port 3307 --schema pipeline/dlsu_cpe_schema.
 python pipeline/seed_database.py --port 3307 --dataset DATA/splits/dataset_train.xlsx
 
 # 5. Run evaluations
-#    Note: these three scripts still have hardcoded dataset paths — see known path issues above
 python evaluation/standard_baseline.py
 python evaluation/naive_rag_baseline.py --split test
 python evaluation/improved_rag.py --phase 1 --split test   # find best retrieval config first
