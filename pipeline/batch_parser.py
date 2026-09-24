@@ -31,6 +31,7 @@
 #   python batch_parser.py --data-dir /your/custom/path
 # ============================================================
 
+import sys
 import re
 import json
 import hashlib
