@@ -43,8 +43,8 @@ import pdfplumber                          # pip install pdfplumber
 from docx import Document as DocxDocument  # pip install python-docx
 
 
-DATA_DIR   = Path("../DATA/raw_data")
-OUTPUT_DIR = Path("../DATA/parsed_data")
+DATA_DIR   = Path(__file__).resolve().parent.parent / "DATA" / "raw_data"
+OUTPUT_DIR = Path(__file__).resolve().parent.parent / "parsed_data"
 
 
 # ============================================================
