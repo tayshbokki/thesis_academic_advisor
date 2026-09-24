@@ -6,6 +6,7 @@ Then open:
 """
 
 import os, re, time
+from pathlib import Path
 from dotenv import load_dotenv
 load_dotenv()
 
@@ -25,7 +26,7 @@ from openai import OpenAI
 # ─────────────────────────────────────────────────────────────────────────────
 # CONFIG  — best retrieval config from Phase 1
 # ─────────────────────────────────────────────────────────────────────────────
-CHROMA_BASE_DIR = "../DATA/chroma_store"
+CHROMA_BASE_DIR = str(Path(__file__).resolve().parent.parent / "chroma_store")
 EMBEDDING_MODEL = "intfloat/e5-small-v2"
 RERANKER_MODEL  = "cross-encoder/ms-marco-MiniLM-L-6-v2"
 E5_QUERY_PREFIX = "query: "

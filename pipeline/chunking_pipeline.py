@@ -52,7 +52,7 @@ embedding_model = HuggingFaceEmbeddings(
 # CHROMADB COLLECTIONS
 # ============================================================
 
-CHROMA_BASE_DIR = "../DATA/chroma_store"
+CHROMA_BASE_DIR = str(Path(__file__).resolve().parent.parent / "chroma_store")
 
 checklist_vectorstore = Chroma(
     collection_name="checklist",

@@ -24,6 +24,7 @@ load_dotenv()
 import os, re, json, time, random
 import nltk
 import openpyxl
+from pathlib import Path
 from nltk.translate.bleu_score import sentence_bleu, SmoothingFunction
 from nltk.translate.meteor_score import meteor_score
 from nltk.tokenize import sent_tokenize
@@ -45,7 +46,7 @@ _ALIGN_SCORER = None
 # 1. LOAD TEST CASES FROM advising_dataset.xlsx
 # ═══════════════════════════════════════════════════════════════════════════
 
-DATASET_PATH = "../DATA/splits/dataset_test.xlsx"
+DATASET_PATH = Path(__file__).resolve().parent.parent / "DATA" / "splits" / "dataset_test.xlsx"
 
 def load_dataset(path: str) -> list[dict]:
     """Load all Q&A pairs from the advising dataset.

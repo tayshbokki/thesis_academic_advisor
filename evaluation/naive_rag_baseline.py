@@ -28,6 +28,7 @@ load_dotenv()
 import os, re, json, time, random, math, argparse
 import nltk
 import openpyxl
+from pathlib import Path
 from nltk.translate.bleu_score import sentence_bleu, SmoothingFunction
 from nltk.translate.meteor_score import meteor_score
 from nltk.tokenize import sent_tokenize
@@ -64,8 +65,9 @@ except Exception as _ne:
 # 1. LOAD TEST CASES FROM advising_dataset.xlsx
 # ═══════════════════════════════════════════════════════════════════════════
 
-DATASET_TRAIN_PATH = "../DATA/splits/dataset_train.xlsx"
-DATASET_TEST_PATH  = "../DATA/splitsdataset_test.xlsx"
+_SPLITS_DIR = Path(__file__).resolve().parent.parent / "DATA" / "splits"
+DATASET_TRAIN_PATH = _SPLITS_DIR / "dataset_train.xlsx"
+DATASET_TEST_PATH  = _SPLITS_DIR / "dataset_test.xlsx"
 
 
 def load_dataset(path: str) -> list[dict]:
@@ -220,7 +222,7 @@ def compute_ndcg_at_k(ranked_ids: list[str], relevant: set[str], k: int) -> floa
 # 2. CHROMADB — Connect to 3 collections built by chunking_pipeline.py
 # ═══════════════════════════════════════════════════════════════════════════
 
-CHROMA_BASE_DIR  = "../DATA/chroma_store"
+CHROMA_BASE_DIR  = str(Path(__file__).resolve().parent.parent / "chroma_store")
 EMBEDDING_MODEL  = "intfloat/e5-small-v2"
 E5_QUERY_PREFIX  = "query: "
 

@@ -18,10 +18,11 @@ import pandas as pd
 from sklearn.model_selection import train_test_split
 from pathlib import Path
 
-DATASET_PATH = "../DATA/splits/dataset-query.xlsx"
-TRAIN_PATH   = "../DATA/splits/dataset_train.xlsx"
-TEST_PATH    = "../DATA/splits/dataset_test.xlsx"
-REPORT_PATH  = "../DATA/splits/split_report.txt"
+SPLITS_DIR   = Path(__file__).resolve().parent.parent / "DATA" / "splits"
+DATASET_PATH = SPLITS_DIR / "dataset-query.xlsx"
+TRAIN_PATH   = SPLITS_DIR / "dataset_train.xlsx"
+TEST_PATH    = SPLITS_DIR / "dataset_test.xlsx"
+REPORT_PATH  = SPLITS_DIR / "split_report.txt"
 TEST_SIZE    = 0.20
 RANDOM_SEED  = 42
 
